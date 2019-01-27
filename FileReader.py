@@ -1,5 +1,4 @@
 import TrueSkillWrapper as TS
-import utils
 import time
 import threading
 
@@ -63,7 +62,7 @@ def readfile(filename, start_at_end=True, exit_on_eof=False, parsingBackend=None
         try:
             TS.evaluate_round(r)
         except Warning as e:
-            utils.print_warning(e)
+            pass
     f.close()
 
 def readfiles(filenames,start_at_end=True,nofollow=False):
