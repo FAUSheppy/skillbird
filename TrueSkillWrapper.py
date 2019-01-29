@@ -1,11 +1,8 @@
 #!/usr/bin/python3
 from trueskill import TrueSkill, Rating
-import trueskill
-import Storrage
+import StorrageBackend
 import threading
 import Player
-import itertools
-import math
 
 env = TrueSkill(draw_probability=0, mu=1500, sigma=833, tau=40, backend='mpmath')
 env.make_as_global()

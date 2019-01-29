@@ -1,7 +1,7 @@
 import socket
 import TrueSkillWrapper as TS
 import Player
-import Storrage
+import StorrageBackend as SB
 from threading import Thread
 import PSQL
 
@@ -61,7 +61,7 @@ def t_listen(conn):
             topN = 0
             if "," in data:
                 topN = int(data.split(",")[1])
-            tmp = Storrage.dump_rating(topN)
+            tmp = SB.dump_rating(topN)
         elif data.startswith("stats"):
             tmp = "Clean: {}\nDirty: {}\n".format(TS.clean_rounds,TS.dirty_rounds)
         elif data.startswith("getteam,"):
@@ -125,7 +125,7 @@ def get_rebuild_team(string):
     for pair in string.split(","):
         p = DummyPlayer(pair.split("|")[0]);
         players += [p]
-    players = list(map(players,lambda p: Storrage.known_players[p]))
+    players = list(map(players,lambda p: SB.known_players[p]))
     players = sorted(players,key=lambda x: TS.get_env().expose(x.rating),reverse=True)
     count = 0
     
@@ -182,15 +182,15 @@ def parse_teams(data):
     for sid in team1:
         sid = sid.strip()
         tmp = Player.DummyPlayer(sid, sid)
-        if tmp in Storrage.known_players:
-            ret[0].update({Storrage.known_players[tmp]:Storrage.known_players[tmp].rating})
+        if tmp in SB.known_players:
+            ret[0].update({SB.known_players[tmp]:Storrage.known_players[tmp].rating})
         else:
             ret[0].update({tmp:TS.new_rating()})
     for sid in team2:
         sid = sid.strip()
         tmp = Player.DummyPlayer(sid, sid)
-        if tmp in Storrage.known_players:
-            ret[1].update({Storrage.known_players[tmp]:Storrage.known_players[tmp].rating})
+        if tmp in SB.known_players:
+            ret[1].update({SB.known_players[tmp]:Storrage.known_players[tmp].rating})
         else:
             ret[1].update({tmp:TS.new_rating()})
     return ret
@@ -207,17 +207,17 @@ def parse_players(data, lol=False):
             tmp = Player.DummyPlayer(str(sid[0]),sid[1])
         else:
             tmp = Player.DummyPlayer(str(sid), str(sid))
-        if tmp in Storrage.known_players:
-            ret += [Storrage.known_players[tmp]]
+        if tmp in SB.known_players:
+            ret += [SB.known_players[tmp]]
         else:
             ret += [tmp]
     return ret
 
 def find_player(string):
     if string.isdigit():
-        if string in Storrage.known_players:
+        if string in SB.known_players:
             return TS.get_player_rating(string, string)
     else:
-       tmp = Storrage.fuzzy_find_player(string)
+       tmp = SB.fuzzy_find_player(string)
        return TS.get_player_rating(tmp)
 

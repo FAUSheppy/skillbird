@@ -1,8 +1,7 @@
 #!/usr/bin/python3
-import Storrage
 import sys
 import NetworkParser
-import FileInStream
+import FileReader
 import argparse
 
 parser = argparse.ArgumentParser(description='Insurgency rating python backend server')
@@ -17,7 +16,7 @@ parser.add_argument('--no-follow','-nf',dest='nofollow', action='store_const',\
 
 if __name__ == "__main__":
         args = parser.parse_args()
-        FileInStream.readfiles( args.files ,\
+        FileReader.readfiles( args.files ,\
                                 args.start_at_end,\
                                 args.nofollow,
                                )
