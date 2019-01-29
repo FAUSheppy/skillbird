@@ -8,8 +8,59 @@ def is_plugin_output(line):
 def is_winner_event(line):
     return "0x42,winner" in line
 def get_key(dic,key):
-     tmp = list(dic)
-     return tmp[tmp.index(key)]
+    tmp = list(dic)
+    return tmp[tmp.index(key)]
+
+
+def group_rounds(f, exit_of_eof=True):
+	last_round_end = None
+    seek_start = True
+    while True:
+        old_line_nr = f.tell()
+        line = f.readline()
+        
+        # if no line or incomplete line, sleep and try again #
+        if not line:
+            if exit_on_eof:
+                return
+            time.sleep(5000)
+            continue
+        elif not line.endswith("\n"):
+            f.seek(old_line_nr)
+            time.sleep(5000)
+            continue
+
+                
+        if seek_start and not "round_start_active" in line and line:
+            continue
+        elif "round_start_active" in line:
+            seek_start = False
+        elif "plugin unloaded" in line:
+            round_lines = []
+            seek_start = True
+            continue
+
+
+        # and line and stop if it was round end #            
+        round_lines += [line]
+        if last_line_was_winner and not parsingBackend.is_round_end(line):
+            f.seek(f.tell()-1,0)
+            break
+        elif parsing.is_round_end(line):
+            last_round_end = line
+            break
+        elif parsing.is_winner_event(line):
+            last_line_was_winner = True
+
+    # parse and evaluate round #
+    r=parsing.parse_round(round_lines)
+    if not r:
+        continue
+    try:
+        TS.evaluate_round(r)
+    except Warning as e:
+        pass
+
 
 def parseRoundFromLines(r):
 
