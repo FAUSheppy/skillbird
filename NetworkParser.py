@@ -9,7 +9,7 @@ def handleInput(data):
         no_log_in_console = False
         data, ident = get_event_ident(data)
         tmp = ''
-
+        print(data)
         if data.startswith("quality,"):
             t1, t2 = parse_teams(data.lstrip("quality,"))
             tmp  = TS.quality(t1.values(),t2.values(),t1.keys(), t2.keys())
@@ -42,7 +42,7 @@ def handleInput(data):
         else:
             print("wtf input: "+data)
         if tmp == '':
-            return
+            return ("EMPTY")
         ret = str(ident+str(tmp)).encode('utf-8')
         if not no_log_in_console and ret:
             print(ret)

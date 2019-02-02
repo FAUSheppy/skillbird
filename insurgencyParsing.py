@@ -44,7 +44,7 @@ def parse(f, exit_on_eof=True, start_at_end=False):
 
         lineCount += 1 
         if lineCount % 100000 == 0:
-            diff = datetime.now()-startTime
+            diff = datetime.now() - startTime
             print("At Line: {} Tot: {} Per 100k:{}".format(\
                             lineCount, diff, diff/(lineCount/100000)))
 
