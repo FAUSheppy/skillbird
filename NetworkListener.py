@@ -3,7 +3,7 @@ from threading import Thread
 import NetworkParser
 
 TCP_IP      = '127.0.0.1'
-TCP_PORT    = 7041
+TCP_PORT    = 7040
 BUFFER_SIZE = 2048
 
 def listen():
@@ -18,5 +18,9 @@ def listen():
 def t_listen(conn):
     data = conn.recv(BUFFER_SIZE).decode('utf-8')
     ret = NetworkParser.handleInput(data)
+    if not ret:
+        ret = "Rating Backend Error"
+    if type(ret) == str:
+        ret.encode("utf-8")
     conn.send(ret)
     conn.close()
