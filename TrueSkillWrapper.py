@@ -39,8 +39,8 @@ def rate_teams_simple(winner_team,loser_team,weights):
             print("WARNING: Groups were {} - {} INCOMPLETE, SKIP".format(len(groups[0]),len(groups[1])))
             return False
         rated = env.rate(groups,weights=weights)
-        Storrage.sync_to_database(rated[0],True)
-        Storrage.sync_to_database(rated[1],False)
+        StorrageBackend.sync_to_database(rated[0],True)
+        StorrageBackend.sync_to_database(rated[1],False)
         clean_rounds += 1
         return True
 
@@ -103,7 +103,7 @@ def player_debug(sid,rated,groups):
 def balance(players, buddies=None):
         if not players:
             return ""
-        Storrage.sync_from_database(players)
+        StorrageBackend.sync_from_database(players)
         for p in players:
             print(p, p.rating)
         arr = sorted(players, key=lambda x: x.rating.mu, reverse=True)
@@ -116,7 +116,7 @@ def balance(players, buddies=None):
 
 def get_player_rating(p):
         try:
-            p = Storrage.known_players[p]
+            p = StorrageBackend.known_players[p]
             tmp = int(env.expose(p.rating))
             return "Rating of '{}' : {} ({}% won)".format(p.name,tmp,p.winratio())
         except KeyError:
@@ -124,9 +124,9 @@ def get_player_rating(p):
 
 def get_player_rating(sid, name):
         try:
-            p = Storrage.known_players[sid]
+            p = StorrageBackend.known_players[sid]
             tmp = int(env.expose(p.rating))
-            return "Rating of '{}' : {} (Rank: {})".format(name, tmp, Storrage.get_player_rank(p))
+            return "Rating of '{}' : {} (Rank: {})".format(name, tmp, StorrageBackend.get_player_rank(p))
         except KeyError:
             return "Rating of '{}' : No Rating (yet).".format(name)
 

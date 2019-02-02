@@ -1,11 +1,6 @@
 import Player
 from datetime import datetime, timedelta
 
-NO_TEAM   = 0
-OBSERVERS = 1
-SECURITY  = 2
-INSURGENT = 3
-
 class Event:
     def __init__(self,timestamp,_map=None):
         self.map = _map

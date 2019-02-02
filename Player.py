@@ -1,4 +1,5 @@
 import datetime
+import TrueSkillWrapper as TS
 
 class Player:
         def __init__(self, steamid, name, rating=None):

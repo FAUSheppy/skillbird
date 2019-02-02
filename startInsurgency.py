@@ -17,9 +17,8 @@ parser.add_argument('--no-follow','-nf',dest='nofollow', action='store_const',\
 if __name__ == "__main__":
         args = parser.parse_args()
         FileReader.readfiles( args.files ,\
-                                args.start_at_end,\
-                                args.nofollow,
-                               )
+                              args.start_at_end,\
+                              args.nofollow )
         if not args.parse_only:
             Query.listen()
         else:

@@ -1,5 +1,13 @@
-from InsurgencyEventSeries import EventSeries
-import InsurgencyEvent as Event
+# insurgency specific
+import insurgencyEvent  as Event
+import StorrageBackend  as SB
+import TrueSkillWrapper as TS
+from insurgencyEventSeries import EventSeries
+
+# general
+import Player
+import Round
+from datetime import datetime
 
 def is_round_end(line):
     return "0x42,round_end_active" in line
@@ -11,10 +19,11 @@ def get_key(dic,key):
     tmp = list(dic)
     return tmp[tmp.index(key)]
 
-
-def group_rounds(f, exit_of_eof=True):
-	last_round_end = None
+def parse(f, exit_of_eof=True, start_at_end=False):
+    last_round_end = None
     seek_start = True
+    round_lines = []
+    last_line_was_winner = False
     while True:
         old_line_nr = f.tell()
         line = f.readline()
@@ -43,19 +52,19 @@ def group_rounds(f, exit_of_eof=True):
 
         # and line and stop if it was round end #            
         round_lines += [line]
-        if last_line_was_winner and not parsingBackend.is_round_end(line):
+        if last_line_was_winner and not is_round_end(line):
             f.seek(f.tell()-1,0)
             break
-        elif parsing.is_round_end(line):
+        elif is_round_end(line):
             last_round_end = line
             break
-        elif parsing.is_winner_event(line):
+        elif is_winner_event(line):
             last_line_was_winner = True
 
     # parse and evaluate round #
-    r=parsing.parse_round(round_lines)
+    r=parseRoundFromLines(round_lines)
     if not r:
-        continue
+        return
     try:
         TS.evaluate_round(r)
     except Warning as e:
@@ -65,10 +74,10 @@ def group_rounds(f, exit_of_eof=True):
 def parseRoundFromLines(r):
 
     # get an event series #
-    es = Event.EventSeries()
+    es = EventSeries()
     for l in r:
         if is_plugin_output(l):
-            e = Event.parse_line_to_event(l)
+            e = parse_line_to_event(l)
             if e != None:
                 es += [e]
 
@@ -99,8 +108,8 @@ def parseRoundFromLines(r):
         winners.pop(p)
 
     # get ratings if there are any yet #
-    Storrage.sync_from_database(winners)
-    Storrage.sync_from_database(losers)
+    SB.sync_from_database(winners)
+    SB.sync_from_database(losers)
     
     try:
         es.get_duration()
@@ -120,21 +129,21 @@ def create_event(etype,line,timestamp):
     if etype in TEAMCHANGE:
         player   = Player.DummyPlayer(line.split(",")[1])
         old_team = line.split(",")[2]
-        return TeamchangeEvent(player,old_team,timestamp,line)
+        return Event.TeamchangeEvent(player,old_team,timestamp,line)
     
     elif etype in ACTIVE_PLAYERS:
-        return ActivePlayersEvent(line,timestamp)
+        return Event.ActivePlayersEvent(line,timestamp)
     
     elif etype in DISCONNECT:
         player   = Player.DummyPlayer(line.split(",")[1])
-        return DisconnectEvent(player,timestamp,line)
+        return Event.DisconnectEvent(player,timestamp,line)
     
     elif etype in WINNER_INFO:
         winner_side = line.split(",")[1]
-        return WinnerInformationEvent(winner_side,timestamp,line)
+        return Event.WinnerInformationEvent(winner_side,timestamp,line)
     
     elif etype in MAP_INFO:
-        return MapInformationEvent(line.split(",")[1],timestamp,line)
+        return Event.MapInformationEvent(line.split(",")[1],timestamp,line)
 
     elif etype in IGNORE:
         pass
@@ -155,5 +164,5 @@ def parse_line_to_event(l):
         return None
 
     event = create_event(etype,tmp,timestamp)
-    Storrage.save_event(event);
+    SB.save_event(event);
     return event

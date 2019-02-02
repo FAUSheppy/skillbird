@@ -1,3 +1,11 @@
+import insurgencyEvent as Event
+from datetime import timedelta
+
+NO_TEAM   = 0                                                                                       
+OBSERVERS = 1
+SECURITY  = 2
+INSURGENT = 3
+
 class EventSeries(list):
     def __init__(self):
         self.winner_side_cache = None
@@ -8,7 +16,7 @@ class EventSeries(list):
 
     def _cache_teams(self):
         for e in self:
-            if type(e) == ActivePlayersEvent:
+            if type(e) == Event.ActivePlayersEvent:
                 # TODO deal with players that are missing without a teamchange or dc event #
                 for p in e.players:
                     if p not in self._team_from_id(p.team):
@@ -23,14 +31,14 @@ class EventSeries(list):
                         tmp_player.active  = True
 
             ## set player.active to false for disconnect or teamchange, it will be set to true at the next event that player is seen in a team ##
-            elif type(e) == DisconnectEvent:
+            elif type(e) == Event.DisconnectEvent:
                 if e.player in self.security_cache and get_key(self.security_cache,e.player).active:
                     get_key(self.security_cache,e.player).active_time += e.timestamp - get_key(self.security_cache,e.player).timestamp
                     get_key(self.security_cache,e.player).active = False
                 elif e.player in self.insurgent_cache and get_key(self.insurgent_cache,e.player).active:
                     get_key(self.insurgent_cache,e.player).active_time += e.timestamp - get_key(self.insurgent_cache,e.player).timestamp
                     get_key(self.insurgent_cache,e.player).active = False
-            elif type(e) == TeamchangeEvent:
+            elif type(e) == Event.TeamchangeEvent:
                 if e.player in self._team_from_id(e.old_team):
                     get_key(self._team_from_id(e.old_team),e.player).active_time += e.timestamp-get_key(self._team_from_id(e.old_team),e.player).timestamp
                     get_key(self._team_from_id(e.old_team),e.player).active     = False
@@ -39,7 +47,7 @@ class EventSeries(list):
         time = "NO_TIME_FOUND"
         for e in self:
             time = e.timestamp#.strftime("%d-%m-%Y %H:%M:%S")
-            if type(e) == WinnerInformationEvent:
+            if type(e) == Event.WinnerInformationEvent:
                 if self.winner_side_cache != None:
                     raise Warning("%s | Info: More than one Winner in series, skipping Round."%time)
                 self.winner_side_cache = int(e.winner)
@@ -89,6 +97,10 @@ class EventSeries(list):
     def get_map(self):
         if self.map_cache == None:
             for e in self:
-                if type(e) == MapInformationEvent:
+                if type(e) == Event.MapInformationEvent:
                     self.map_cache = e.map
         return self.map_cache
+
+def get_key(dic,key):
+    tmp = list(dic)
+    return tmp[tmp.index(key)]    
