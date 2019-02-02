@@ -3,7 +3,7 @@ import time
 import threading
 import insurgencyParsing as iparse
 
-def readfile(filename, start_at_end=True, exit_on_eof=False, parsingBackend=iparse, cpus=1):
+def readfile(filename, start_at_end, exit_on_eof, parsingBackend, cpus=1):
 
     f = open(filename)
     if start_at_end:
@@ -22,7 +22,10 @@ def readfile(filename, start_at_end=True, exit_on_eof=False, parsingBackend=ipar
     
     f.close()
 
-def readfiles(filenames, start_at_end=True, nofollow=False, parsingBackend=iparse ):
+def readfiles(filenames, start_at_end=False, nofollow=False,parsingBackend=iparse, oneThread=False):
         for f in filenames:
-            threading.Thread(target=readfile,args=\
-                            (f, start_at_end, nofollow, parsingBackend)).start()
+            if oneThread:
+                readfile(f, start_at_end, nofollow, parsingBackend)
+            else:
+                threading.Thread(target=readfile,args=\
+                            (f, start_at_end, nofollow, parsingBackend,)).start()

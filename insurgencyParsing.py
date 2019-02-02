@@ -8,6 +8,7 @@ from insurgencyEventSeries import EventSeries
 import Player
 import Round
 from datetime import datetime
+import time
 
 def is_round_end(line):
     return "0x42,round_end_active" in line
@@ -19,7 +20,7 @@ def get_key(dic,key):
     tmp = list(dic)
     return tmp[tmp.index(key)]
 
-def parse(f, exit_of_eof=True, start_at_end=False):
+def parse(f, exit_on_eof=True, start_at_end=False):
     last_round_end = None
     seek_start = True
     round_lines = []
@@ -29,7 +30,7 @@ def parse(f, exit_of_eof=True, start_at_end=False):
         line = f.readline()
         
         # if no line or incomplete line, sleep and try again #
-        if not line:
+        if not line or not line.strip("\n"):
             if exit_on_eof:
                 return
             time.sleep(5000)
@@ -50,12 +51,9 @@ def parse(f, exit_of_eof=True, start_at_end=False):
             continue
 
         evalRound = False
-        # and line and stop if it was round end #            
+        # ad line and stop if it was round end #            
         round_lines += [line]
-        if last_line_was_winner and not is_round_end(line):
-            f.seek(f.tell()-1,0)
-            evalRound = True
-        elif is_round_end(line):
+        if is_round_end(line):
             last_round_end = line
             evalRound = True
         elif is_winner_event(line):
@@ -65,6 +63,7 @@ def parse(f, exit_of_eof=True, start_at_end=False):
         if evalRound:
             nextRound = parseRoundFromLines(round_lines)
             round_lines = []
+            evalRound = False
             if nextRound:
                 try:
                     TS.evaluate_round(nextRound)
@@ -157,13 +156,16 @@ def parse_line_to_event(l):
     etype = tmp.split(",")[0].split("|")[0]
     try:
         if ": L " in l.split("0x42")[0]:
-            timestamp = datetime.strptime(l.split(": L ")[1].split(": [")[0],"%m/%d/%Y - %H:%M:%S")
+           timestamp = datetime.strptime(l.split(": L ")[1].split(": [")[0],"%m/%d/%Y - %H:%M:%S")
         else:
-            timestamp = datetime.strptime(l.split(": [ints_logging.smx]")[0],"L %m/%d/%Y - %H:%M:%S")
+           timestamp = datetime.strptime(l.split(": [ints_logging.smx]")[0],"L %m/%d/%Y - %H:%M:%S")
+        event = create_event(etype,tmp,timestamp)
     except ValueError:
         print(" ---- NO TIME ----  | WARNING: Failed to parse time for event, SKIP")
         return None
+    except Exception as e:
+        print("Failed to parse Event in line, skipping: {}".format(str(e)))
+        return None
 
-    event = create_event(etype,tmp,timestamp)
     SB.save_event(event);
     return event
