@@ -25,6 +25,7 @@ def parse(f, exit_on_eof=True, start_at_end=False):
     seek_start = True
     round_lines = []
     last_line_was_winner = False
+    lineCount = 0
     while True:
         old_line_nr = f.tell()
         line = f.readline()
@@ -40,7 +41,10 @@ def parse(f, exit_on_eof=True, start_at_end=False):
             time.sleep(5000)
             continue
 
-                
+        lineCount += 1 
+        if lineCount % 100000 == 0:
+            print("At Line: {}".format(lineCount))
+
         if seek_start and not "round_start_active" in line and line:
             continue
         elif "round_start_active" in line:
