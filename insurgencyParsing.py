@@ -49,26 +49,27 @@ def parse(f, exit_of_eof=True, start_at_end=False):
             seek_start = True
             continue
 
-
+        evalRound = False
         # and line and stop if it was round end #            
         round_lines += [line]
         if last_line_was_winner and not is_round_end(line):
             f.seek(f.tell()-1,0)
-            break
+            evalRound = True
         elif is_round_end(line):
             last_round_end = line
-            break
+            evalRound = True
         elif is_winner_event(line):
             last_line_was_winner = True
 
-    # parse and evaluate round #
-    r=parseRoundFromLines(round_lines)
-    if not r:
-        return
-    try:
-        TS.evaluate_round(r)
-    except Warning as e:
-        pass
+        # parse and evaluate round #
+        if evalRound:
+            nextRound = parseRoundFromLines(round_lines)
+            round_lines = []
+            if nextRound:
+                try:
+                    TS.evaluate_round(nextRound)
+                except Warning as e:
+                    pass
 
 
 def parseRoundFromLines(r):

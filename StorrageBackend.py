@@ -28,7 +28,7 @@ def get_player_rank(p):
             return "N/A"
 
                         
-def dump_rating(top=0, forceMeanSort=False, enforceWhitelist=None):
+def dumpRatings(top=0, forceMeanSort=False, enforceWhitelist=None):
         global known_players
         ret = ""
         if forceMeanSort:

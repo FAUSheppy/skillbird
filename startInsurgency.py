@@ -10,10 +10,14 @@ parser.add_argument('files', metavar='FILE', type=str, nargs='+',\
 parser.add_argument('--parse-only','-po',dest='parse_only', action='store_const',\
                 const=True, default=False,help="only parse, do not listen for queries")
 parser.add_argument('--start-at-end','-se',dest='start_at_end', action='store_const',\
-                const=True, default=False,help="start at the end of each file (implies follow)")
+                const=True, default=False, \
+                help="start at the end of each file (overwrites no-follow)")
 parser.add_argument('--no-follow','-nf',dest='nofollow', action='store_const',\
-                const=True, default=False,help="wait for changes on the files (does not imply start-at-end)")
-
+                const=True, default=False, \
+                help="wait for changes on the files (does not imply start-at-end)")
+parser.add_argument('--one-thread', dest='one-thread', action='store_const',\
+                const=True, default=False, \
+                help="run everything in main thread (implies no-follow)")
 if __name__ == "__main__":
         args = parser.parse_args()
         FileReader.readfiles( args.files ,\
