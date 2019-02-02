@@ -27,4 +27,4 @@ def t_listen(conn):
                 ret = ret.encode("utf-8")
             conn.send(ret)
         except Exception:
-            conn.send(b"Rating Backend Exception (503 Database not in sync)")
+            pass
