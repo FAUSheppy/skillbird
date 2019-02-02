@@ -21,6 +21,6 @@ def t_listen(conn):
     if not ret:
         ret = "Rating Backend Error"
     if type(ret) == str:
-        ret.encode("utf-8")
+        ret = ret.encode("utf-8")
     conn.send(ret)
     conn.close()
