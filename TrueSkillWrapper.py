@@ -114,19 +114,11 @@ def balance(players, buddies=None):
             i += 1
         return ret
 
-def get_player_rating(p):
-        try:
-            p = StorrageBackend.known_players[p]
-            tmp = int(env.expose(p.rating))
-            return "Rating of '{}' : {} ({}% won)".format(p.name,tmp,p.winratio())
-        except KeyError:
-            return "No Rating (yet)."
-
-def get_player_rating(sid, name):
+def get_player_rating(sid, name="NOTFOUND"):
         try:
             p = StorrageBackend.known_players[sid]
             tmp = int(env.expose(p.rating))
-            return "Rating of '{}' : {} (Rank: {})".format(name, tmp, StorrageBackend.get_player_rank(p))
+            return "Rating of '{}' : {} (Rank: {})".format(p.name, tmp, StorrageBackend.get_player_rank(p))
         except KeyError:
             return "Rating of '{}' : No Rating (yet).".format(name)
 

@@ -4,6 +4,7 @@ import NetworkParser
 import FileReader
 import argparse
 import StorrageBackend
+import NetworkListener
 
 parser = argparse.ArgumentParser(description='Insurgency rating python backend server')
 parser.add_argument('files', metavar='FILE', type=str, nargs='+',\
@@ -19,6 +20,7 @@ parser.add_argument('--no-follow','-nf',dest='nofollow', action='store_const',\
 parser.add_argument('--one-thread', dest='oneThread', action='store_const',\
                 const=True, default=False, \
                 help="run everything in main thread (implies no-follow)")
+
 if __name__ == "__main__":
         args = parser.parse_args()
         FileReader.readfiles( args.files ,\
@@ -29,6 +31,7 @@ if __name__ == "__main__":
             for l in StorrageBackend.dumpRatings().split("\n"):
                 print(l)
         if not args.parse_only:
-            Query.listen()
+            print("Starting network-listener")
+            NetworkListener.listen()
         else:
             sys.exit(0)

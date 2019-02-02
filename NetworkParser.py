@@ -5,36 +5,10 @@ import StorrageBackend as SB
 from threading import Thread
 import PSQL
 
-TCP_IP      = '127.0.0.1'
-TCP_PORT    = 7051
-BUFFER_SIZE = 1024
-
-def listen():
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    s.bind((TCP_IP, TCP_PORT))
-    s.listen(5)
-    while True:
-        conn, addr = s.accept()
-        Thread(target=t_listen_wrapper,args=(conn,)).start()
-
-def t_listen_wrapper(conn):
-        try:
-            t_listen(conn)
-        except RuntimeError as e:
-            conn.send(b'503 (Database not in sync)')
-        finally:
-            conn.close()
-
-
-def t_listen(conn):
+def handleInput(data):
         no_log_in_console = False
-
-        data = conn.recv(BUFFER_SIZE)
-        data = str(data,'utf-8')
-        data,ident = get_event_ident(data)
+        data, ident = get_event_ident(data)
         tmp = ''
-
 
         if data.startswith("quality,"):
             t1, t2 = parse_teams(data.lstrip("quality,"))
@@ -42,26 +16,23 @@ def t_listen(conn):
         elif data.startswith("balance,"):
             s    = data.lstrip("balance,")
             tmp  = TS.balance(parse_players(s), get_buddies(s))
-        elif data.startswith("balancelol,"):
-            s    = data.lstrip("balancelol,")
-            tmp  = TS.balance(parse_players(s,lol=True), get_buddies(s))
         elif data.startswith("player,"):
             # legacy format support
             p = Player.DummyPlayer(data.lstrip("player,").rstrip("\n"))
             tmp = TS.get_player_rating(p)
-        elif data.startswith("playerinfo,"):
-            tag, sid, name = data.split(",")
-            tmp = "RATING_SINGLE," + TS.get_player_rating_rich(sid, name)
         elif data.startswith("find,"):
             tmp = find_player(data.rstrip("\n").lstrip("find,"))
         elif data.startswith("buddies,"):
             tmp = str(get_buddies())
+        elif data.startswith("forceRankReload"):
+            SB.updatePlayerRanks(force=True)
+            tmp = "Updated"
         elif data.startswith("dump"):
             no_log_in_console = True
             topN = 0
             if "," in data:
                 topN = int(data.split(",")[1])
-            tmp = SB.dump_rating(topN)
+            tmp = SB.dumpRatings(topN)
         elif data.startswith("stats"):
             tmp = "Clean: {}\nDirty: {}\n".format(TS.clean_rounds,TS.dirty_rounds)
         elif data.startswith("getteam,"):
@@ -75,9 +46,7 @@ def t_listen(conn):
         ret = str(ident+str(tmp)).encode('utf-8')
         if not no_log_in_console and ret:
             print(ret)
-
-        conn.send(ret)
-        conn.close()
+        return ret
 
 def get_event_ident(data):
     if data.startswith("player_connected"):
@@ -218,6 +187,9 @@ def find_player(string):
         if string in SB.known_players:
             return TS.get_player_rating(string, string)
     else:
-       tmp = SB.fuzzy_find_player(string)
-       return TS.get_player_rating(tmp)
-
+        tmp = SB.fuzzy_find_player(string)
+        string = ""
+        for tup in tmp:
+            p = tup[1]
+            string += "{}\n".format(TS.get_player_rating(p, p.name))
+        return string

@@ -1,5 +1,6 @@
 import socket
 from threading import Thread
+import NetworkParser
 
 TCP_IP      = '127.0.0.1'
 TCP_PORT    = 7041
@@ -13,10 +14,9 @@ def listen():
     while True:
         conn, addr = s.accept();
         Thread(target=t_listen,args=(conn,)).start();
-        t_listen(conn);
 
 def t_listen(conn):
-    while True:
-        line = conn.recv(BUFFER_SIZE).decode('utf-8')
-        if not line:
-            continue
+    data = conn.recv(BUFFER_SIZE).decode('utf-8')
+    ret = NetworkParser.handleInput(data)
+    conn.send(ret)
+    conn.close()

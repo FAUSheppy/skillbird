@@ -60,18 +60,20 @@ def sync_from_database(players):
         else:
             known_players.update({Player.DummyPlayer(p.steamid, p.name):Player.PlayerForDatabase(None,None,None,player=p)})
 
-def sync_to_database(players,win):
-    global last_rank_update
-    global player_ranks
-
+def sync_to_database(players, win):
     for p in players:
         known_players[p].rating = players[p]
         if win:
             known_players[p].wins += 1
         known_players[p].games += 1
+    updatePlayerRanks()
 
-    # update player ranks #
-    if last_rank_update - datetime.now() > timedelta(seconds=240):
+
+def updatePlayerRanks(force=False):
+    global last_rank_update
+    global player_ranks
+
+    if force or last_rank_update - datetime.now() > timedelta(seconds=240):
         last_rank_update = datetime.now()
         s = sorted(known_players.values(),key=lambda x: TS.get_env().expose(x.rating),reverse=True)
         rank = 1
@@ -105,5 +107,5 @@ def fuzzy_find_player(name):
                 tup_list += [(sim,p)]
         finally:
             TS.unlock()
-        return sorted(tup_list,key=lambda x: x[0],reverse=True)[0][1]
-
+        tmp = sorted(tup_list, key=lambda x: x[0], reverse=True)
+        return list(filter(lambda x: x[0] > 80, tmp))
