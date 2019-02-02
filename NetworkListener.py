@@ -17,13 +17,14 @@ def listen():
         Thread(target=t_listen,args=(conn,)).start();
 
 def t_listen(conn):
-    try:
-        data = conn.recv(BUFFER_SIZE).decode('utf-8')
-        ret = NetworkParser.handleInput(data)
-        if not ret:
-            ret = "Rating Backend Error"
-        if type(ret) == str:
-            ret = ret.encode("utf-8")
-        conn.send(ret)
-    finally:
-        conn.close()
+    while True:
+        try:
+            data = conn.recv(BUFFER_SIZE).decode('utf-8')
+            ret = NetworkParser.handleInput(data)
+            if not ret:
+                ret = "Rating Backend Error"
+            if type(ret) == str:
+                ret = ret.encode("utf-8")
+            conn.send(ret)
+        except Exception:
+            conn.send(b"Rating Backend Exception (503 Database not in sync)")
