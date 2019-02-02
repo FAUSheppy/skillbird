@@ -4,7 +4,8 @@ import NetworkParser
 
 TCP_IP      = '127.0.0.1'
 TCP_PORT    = 7040
-BUFFER_SIZE = 2048
+# must be same as smmod
+BUFFER_SIZE = 1024
 
 def listen():
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -16,11 +17,13 @@ def listen():
         Thread(target=t_listen,args=(conn,)).start();
 
 def t_listen(conn):
-    data = conn.recv(BUFFER_SIZE).decode('utf-8')
-    ret = NetworkParser.handleInput(data)
-    if not ret:
-        ret = "Rating Backend Error"
-    if type(ret) == str:
-        ret = ret.encode("utf-8")
-    conn.send(ret)
-    conn.close()
+    try:
+        data = conn.recv(BUFFER_SIZE).decode('utf-8')
+        ret = NetworkParser.handleInput(data)
+        if not ret:
+            ret = "Rating Backend Error"
+        if type(ret) == str:
+            ret = ret.encode("utf-8")
+        conn.send(ret)
+    finally:
+        conn.close()
