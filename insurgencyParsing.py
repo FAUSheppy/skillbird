@@ -26,6 +26,7 @@ def parse(f, exit_on_eof=True, start_at_end=False):
     round_lines = []
     last_line_was_winner = False
     lineCount = 0
+    startTime = datetime.now()
     while True:
         old_line_nr = f.tell()
         line = f.readline()
@@ -43,7 +44,9 @@ def parse(f, exit_on_eof=True, start_at_end=False):
 
         lineCount += 1 
         if lineCount % 100000 == 0:
-            print("At Line: {}".format(lineCount))
+            diff = startTime - datetime.now()
+            print("At Line: {} Tot: {} Per 100k:{}".format(\
+                            lineCount, diff, diff/(lineCount/100000)))
 
         if seek_start and not "round_start_active" in line and line:
             continue
