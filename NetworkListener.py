@@ -20,6 +20,9 @@ def t_listen(conn):
     while True:
         try:
             data = conn.recv(BUFFER_SIZE).decode('utf-8')
+            # data is only None if the connection is seperated
+            if not data:
+                break
             ret = NetworkParser.handleInput(data)
             if not ret:
                 ret = "Rating Backend Error"
