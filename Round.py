@@ -1,4 +1,7 @@
-from datetime import timedelta
+from datetime import timedelta, datetime
+import threading
+from Player import PlayerInRound
+import TrueSkillWrapper as TS
 
 ## A comment on why the login-offset is nessesary ##
 ## - losing teams tend to have players leaving and joining more rapidly
@@ -9,14 +12,24 @@ from datetime import timedelta
 loginoffset = timedelta(seconds=60)
 
 class Round:
-    def __init__(self,winner_team,loser_team,_map,duration,starttime,winner_side=None):
+    writeLock = threading.RLock()
+    def __init__(self, winner_team, loser_team, _map, duration,\
+                    starttime, winner_side=None, cache=None):
             self.winners     = winner_team
             self.losers      = loser_team
             self.winner_side = winner_side
             self.map         = _map
             self.duration    = duration
             self.start       = starttime
-            self.add_fake_players()
+            #self.add_fake_players()
+            if cache:
+                Round.writeLock.acquire()
+                with open(cache, "a") as f:
+                    f.write(self.serialize())
+                    f.write("\n")
+                    f.flush()
+                Round.writeLock.release()
+
 
     def normalized_playtimes(self):
         '''returns a dict-Object with {key=(teamid,player):value=player_time_played/total_time_of_round}'''
@@ -102,3 +115,36 @@ class Round:
 
         return max(w1,w2)/min(w1,w2)
 
+    def serialize(self):
+        # full = winners|losers|winner_side|map|duration|start
+        # winners/losers = p1,p2,p3 ...
+        winners = ""
+        losers = ""
+        for p in self.winners:
+            winners += "," + p.serialize()
+        for p in self.losers:
+            losers += "," + p.serialize()
+        
+        teams = "{}|{}".format(winners, losers)
+        startTimeStr = self.start.strftime("%b %d %H:%M:%S")
+
+        ret = "{}|{}|{}|{}|{}".format(teams, self.winner_side, \
+                                        self.map, self.duration.seconds, startTimeStr)
+        return ret
+
+    def deserialize(string):
+        string = string.strip("\n")
+        winnersStr, losersStr, winner_side, _map, duration, startTimeStr = string.split("|")
+        winners = dict()
+        losers  = dict()
+        for pStr in winnersStr.split(","):
+            if pStr == "":
+                continue
+            winners.update({PlayerInRound.deserialize(pStr):TS.new_rating()})
+        for pStr in losersStr.split(","):
+            if pStr == "":
+                continue
+            losers.update({PlayerInRound.deserialize(pStr):TS.new_rating()})
+        startTime = datetime.strptime(startTimeStr, "%b %d %H:%M:%S")
+        duration = timedelta(seconds=int(duration))
+        return Round(winners, losers, _map, duration, startTime, winner_side)

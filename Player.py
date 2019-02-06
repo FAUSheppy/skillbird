@@ -33,7 +33,7 @@ class DummyPlayer(Player):
             super().__init__(steamid, name)
 
 class PlayerInRound(Player):
-        def __init__(self, steamid, name, team, timestamp):
+        def __init__(self, steamid, name, team, timestamp=None):
             self.name = name
             self.cur_name = name
             self.steamid = steamid
@@ -50,6 +50,16 @@ class PlayerInRound(Player):
             self.timestamp = timestamp
         def __str__(self):
             return "TMP-Player: {}, ID: {}, active: {}".format(self.cur_name,self.steamid,self.active_time)
+        def serialize(self):
+            return "{}0x42{}0x42{}0x42{}".format(self.name, self.steamid, \
+                            self.team, self.active_time.seconds)
+
+        def deserialize(string):
+            name, steamid, team, active_time = string.split("0x42")
+            active_time = datetime.timedelta(seconds=int(active_time))
+
+            team = int(team)
+            return PlayerInRound(steamid, name, team, active_time)
 
 class PlayerForDatabase(Player):
         def __init__(self,steamid,name,rating,player=None):

@@ -20,13 +20,18 @@ parser.add_argument('--no-follow','-nf',dest='nofollow', action='store_const',\
 parser.add_argument('--one-thread', dest='oneThread', action='store_const',\
                 const=True, default=False, \
                 help="run everything in main thread (implies no-follow)")
+parser.add_argument('--cache-file', dest='cacheFile',\
+                help="A cache file which makes restarting the system fast")
 
 if __name__ == "__main__":
         args = parser.parse_args()
+        if args.cacheFile:
+            open(args.cacheFile, "a").close()
         FileReader.readfiles( args.files ,\
                               start_at_end=args.start_at_end,\
-                              nofollow=args.nofollow,
-                              oneThread=args.oneThread)
+                              nofollow=args.nofollow, \
+                              oneThread=args.oneThread, \
+                              cacheFile=args.cacheFile)
         if args.oneThread:
             for l in StorrageBackend.dumpRatings().split("\n"):
                 print(l)

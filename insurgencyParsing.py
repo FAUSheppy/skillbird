@@ -20,13 +20,44 @@ def get_key(dic,key):
     tmp = list(dic)
     return tmp[tmp.index(key)]
 
-def parse(f, exit_on_eof=True, start_at_end=False):
+def loadCache(cacheFile):
+    rounds = []
+    if not cacheFile:
+        return None
+    with open(cacheFile, "r") as f:
+        for line in f:
+            rounds += [Round.Round.deserialize(line)]
+
+    # return if file was empty #
+    if len(rounds) == 0:
+        return None
+
+    # put them in right order #
+    rounds = sorted(rounds, key=lambda r: r.start)
+
+    # parse Rounds #
+    for r in rounds:
+        try:
+            SB.sync_from_database(r.winners)
+            SB.sync_from_database(r.losers)
+            TS.evaluate_round(r)
+        except Warning:
+            pass
+
+    # find newest #
+    lastRoundByDate = rounds[-1].start
+    return lastRoundByDate
+
+        
+
+def parse(f, exit_on_eof=True, start_at_end=False, cacheFile=None):
     last_round_end = None
     seek_start = True
     round_lines = []
     last_line_was_winner = False
     lineCount = 0
     startTime = datetime.now()
+
     while True:
         old_line_nr = f.tell()
         line = f.readline()
@@ -68,7 +99,7 @@ def parse(f, exit_on_eof=True, start_at_end=False):
 
         # parse and evaluate round #
         if evalRound:
-            nextRound = parseRoundFromLines(round_lines)
+            nextRound = parseRoundFromLines(round_lines, cacheFile)
             round_lines = []
             evalRound = False
             if nextRound:
@@ -78,7 +109,7 @@ def parse(f, exit_on_eof=True, start_at_end=False):
                     pass
 
 
-def parseRoundFromLines(r):
+def parseRoundFromLines(r, cacheFile=None):
 
     # get an event series #
     es = EventSeries()
@@ -123,7 +154,8 @@ def parseRoundFromLines(r):
     except Warning as e:
         TS.dirty_rounds += 1
         return None
-    return Round.Round(winners,losers,es.get_map(),es.get_duration(),es.get_starttime())
+    return Round.Round(winners, losers, es.get_map(), es.get_duration(), \
+                    es.get_starttime(), cache=cacheFile)
 
 def create_event(etype,line,timestamp):
     TEAMCHANGE      = ["teamchange"]
