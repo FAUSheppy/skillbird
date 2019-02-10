@@ -126,7 +126,7 @@ class Round:
             losers += "," + p.serialize()
         
         teams = "{}|{}".format(winners, losers)
-        startTimeStr = self.start.strftime("%b %d %H:%M:%S")
+        startTimeStr = self.start.strftime("%y %b %d %H:%M:%S")
 
         ret = "{}|{}|{}|{}|{}".format(teams, self.winner_side, \
                                         self.map, self.duration.seconds, startTimeStr)
@@ -145,6 +145,6 @@ class Round:
             if pStr == "":
                 continue
             losers.update({PlayerInRound.deserialize(pStr):TS.new_rating()})
-        startTime = datetime.strptime(startTimeStr, "%b %d %H:%M:%S")
+        startTime = datetime.strptime(startTimeStr, "%y %b %d %H:%M:%S")
         duration = timedelta(seconds=int(duration))
         return Round(winners, losers, _map, duration, startTime, winner_side)
