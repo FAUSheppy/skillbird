@@ -3,8 +3,6 @@ import time
 import threading
 import insurgencyParsing as iparse
 
-from datetime import datetime
-
 DATE_LENGTH = 15
 
 def readfile(filename, start_at_end, exit_on_eof, parsingBackend, startAtTime, cacheFile, cpus=1):
@@ -17,7 +15,7 @@ def readfile(filename, start_at_end, exit_on_eof, parsingBackend, startAtTime, c
         while True:
             line = f.readline()
             try:
-                dt = datetime.strptime(line[:DATE_LENGTH], "%b %d %H:%M:%S")
+                dt = parsingBackend.parseDate(line)
                 if not dt:
                     break
                 if dt > startAtTime:

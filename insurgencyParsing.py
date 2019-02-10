@@ -190,15 +190,20 @@ def create_event(etype,line,timestamp):
     else:
         raise Exception("Cannot create event from logline. (etype was: '{}')".format(etype))
 
+def parseDate(line):
+    if ": L " in l.split("0x42")[0]:
+        timestamp = datetime.strptime(l.split(": L ")[1].split(": [")[0],"%m/%d/%Y - %H:%M:%S")
+    else:
+        timestamp = datetime.strptime(l.split(": [ints_logging.smx]")[0],"L %m/%d/%Y - %H:%M:%S")
+    return timestamp
+
+
 def parse_line_to_event(l):
     tmp = l.split("0x42,")[1].strip("\n")
     etype = tmp.split(",")[0].split("|")[0]
     try:
-        if ": L " in l.split("0x42")[0]:
-           timestamp = datetime.strptime(l.split(": L ")[1].split(": [")[0],"%m/%d/%Y - %H:%M:%S")
-        else:
-           timestamp = datetime.strptime(l.split(": [ints_logging.smx]")[0],"L %m/%d/%Y - %H:%M:%S")
         event = create_event(etype,tmp,timestamp)
+        timestamp = parseDate(line)
     except ValueError:
         print(" ---- NO TIME ----  | WARNING: Failed to parse time for event, SKIP")
         return None
