@@ -188,7 +188,7 @@ def create_event(etype,line,timestamp):
         pass
     
     else:
-        raise Exception("Cannot create event from logline. (etype was: '{}')".format(etype))
+        raise RuntimeError("Cannot create event from logline. (etype was: '{}')".format(etype))
 
 def parseDate(l):
     if ": L " in l.split("0x42")[0]:
@@ -207,7 +207,7 @@ def parse_line_to_event(l):
     except ValueError:
         print(" ---- NO TIME ----  | WARNING: Failed to parse time for event, SKIP")
         return None
-    except IndexError as e:
+    except RuntimeError as e:
         print("Failed to parse Event in line, skipping: {}".format(str(e)))
         return None
 
