@@ -62,7 +62,7 @@ class PlayerInRound(Player):
             return PlayerInRound(steamid, name, team, active_time)
 
 class PlayerForDatabase(Player):
-        def __init__(self,steamid,name,rating,player=None):
+        def __init__(self,steamid, name, rating, lastUpdate=None, player=None):
             if player:
                 self.steamid = player.steamid
                 self.name    = player.name
@@ -71,6 +71,7 @@ class PlayerForDatabase(Player):
                 self.steamid = steamid
                 self.name    = name
                 self.rating  = rating
+            self.lastUpdate = lastUpdate
             self.games = 0
             self.wins  = 0
         def winratio(self):

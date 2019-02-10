@@ -29,5 +29,5 @@ def t_listen(conn):
             if type(ret) == str:
                 ret = ret.encode("utf-8")
             conn.send(ret)
-        except Exception:
+        except IOError:
             pass

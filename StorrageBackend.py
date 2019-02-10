@@ -31,6 +31,8 @@ def get_player_rank(p):
 def dumpRatings(top=0, forceMeanSort=False, enforceWhitelist=None):
         global known_players
         ret = ""
+        updatePlayerRanks(force=True)
+
         if forceMeanSort:
             sort = sorted(known_players.values(),key=lambda x: x.rating.mu,reverse=True)
         else:
@@ -58,7 +60,11 @@ def sync_from_database(players):
             if type(players) == dict:
                 players[p] = p.rating
         else:
-            known_players.update({Player.DummyPlayer(p.steamid, p.name):Player.PlayerForDatabase(None,None,None,player=p)})
+            lastUpdate = datetime.now()
+            known_players.update(\
+                            { Player.DummyPlayer(p.steamid, p.name) : \
+                              Player.PlayerForDatabase(None, None, None, player=p, lastUpdate=lastUpdate)\
+                            })
 
 def sync_to_database(players, win):
     for p in players:
@@ -66,6 +72,7 @@ def sync_to_database(players, win):
         if win:
             known_players[p].wins += 1
         known_players[p].games += 1
+        known_players[p].lastUpdate = datetime.now()
     updatePlayerRanks()
 
 
@@ -75,7 +82,9 @@ def updatePlayerRanks(force=False):
 
     if force or last_rank_update - datetime.now() > timedelta(seconds=240):
         last_rank_update = datetime.now()
-        s = sorted(known_players.values(),key=lambda x: TS.get_env().expose(x.rating),reverse=True)
+        s = sorted(known_players.values(), key=lambda x: TS.get_env().expose(x.rating),reverse=True)
+        now = datetime.now()
+        s = filter(lambda p: now - p.lastUpdate < timedelta(days=60), s)
         rank = 1
         for p in s:
             if p in player_ranks:
