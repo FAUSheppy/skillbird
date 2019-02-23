@@ -10,7 +10,7 @@ To work correctly you data must have the following fields:
 You may also have the following informations:
 - data/time of the game (you cannot use the cached-rebuild feature without this)
 - time players spent playing compared to the full length of the game
-- teamchanges of 
+- teamchanges of players
 - different maps
 
 ### Data Input
