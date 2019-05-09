@@ -14,7 +14,7 @@ class DisconnectEvent(Event):
         self.player = player
         self.string = line
     def serialize(self):
-            return {"etype":"DCE","timestamp":self.timestamp.strftime(),"string":self.string}
+        return {"etype":"DCE","timestamp":self.timestamp.strftime(),"string":self.string}
 
 class TeamchangeEvent(Event):
     def __init__(self,player,old_team,timestamp,line):
@@ -23,17 +23,15 @@ class TeamchangeEvent(Event):
         self.old_team = int(old_team)
         self.string = line
     def serialize(self):
-            return {"etype":"TCE","timestamp":self.timestamp.strftime(),"string":self.string}
+        return {"etype":"TCE","timestamp":self.timestamp.strftime(),"string":self.string}
 
 class ActivePlayersEvent(Event):
     def __init__(self,player_str,timestamp):
         self.timestamp = timestamp
         self.players = []
         self.string = player_str
-        #print(player_str)
         try:
             for s in player_str.split(","):
-                #print(s)
                 if not s or len(s.split("|"))==1:
                     continue
                 steamid = s.split("|")[1]
@@ -53,7 +51,7 @@ class WinnerInformationEvent(Event):
         self.winner = winner_side
         self.string = line
     def serialize(self):
-            return {"etype":"WIE","timestamp":self.timestamp.strftime(),"string":self.string}
+        return {"etype":"WIE","timestamp":self.timestamp.strftime(),"string":self.string}
 
 class MapInformationEvent(Event):
     def __init__(self,_map,timestamp,line):
@@ -61,7 +59,7 @@ class MapInformationEvent(Event):
         self.map = _map
         self.string = line
     def serialize(self):
-            return {"etype":"MIE","timestamp":self.timestamp.strftime(),"string":self.string}
+        return {"etype":"MIE","timestamp":self.timestamp.strftime(),"string":self.string}
 
 class MapInformationEvent(Event):
     def __init__(self,_map,timestamp,line):
@@ -69,7 +67,7 @@ class MapInformationEvent(Event):
         self.map = _map
         self.string = line
     def serialize(self):
-            return {"etype":"MIE","timestamp":self.timestamp.strftime(),"string":self.string}
+        return {"etype":"MIE","timestamp":self.timestamp.strftime(),"string":self.string}
 
 
 
