@@ -68,8 +68,3 @@ class MapInformationEvent(Event):
         self.string = line
     def serialize(self):
         return {"etype":"MIE","timestamp":self.timestamp.strftime(),"string":self.string}
-
-
-
-
-
