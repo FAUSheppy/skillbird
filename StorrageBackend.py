@@ -33,9 +33,7 @@ def save_to_file(fname="score.log"):
 
 def sync_from_database(players):
     for p in players:
-        #print("BKnP: {}".format(p))
         if p in known_players:
-            #print("KnP: {}".format(p))
             p.rating   = known_players[p].rating
             if type(players) == dict:
                 players[p] = p.rating
@@ -65,7 +63,7 @@ def updatePlayerRanks(force=False):
 
     if force or last_rank_update - datetime.now() > timedelta(seconds=240):
         last_rank_update = datetime.now()
-        s = sorted(known_players.values(), key=lambda x: TS.get_env().expose(x.rating),reverse=True)
+        s = sorted(known_players.values(), key=lambda x: TS.getEnviroment().expose(x.rating),reverse=True)
         now = datetime.now()
         s = filter(lambda p: now - p.lastUpdate < timedelta(days=60), s)
         rank = 1
@@ -75,7 +73,6 @@ def updatePlayerRanks(force=False):
             else:
                 player_ranks.update({p:rank})
             rank += 1
-
 
 #############################################################
 ################## Write/Load External DB ###################
@@ -93,6 +90,23 @@ def save_psql():
 #############################################################
 ###################### Python API ###########################
 #############################################################
+
+def getBalanceForPlayers(players, buddies=None):
+        if not players:
+            return ""
+        StorrageBackend.sync_from_database(players)
+        for p in players:
+            print(p, p.rating)
+        arr = sorted(players, key=lambda x: x.rating.mu, reverse=True)
+        ret=""
+        i = 0
+        while i < len(arr):
+            ret += "{}|{},".format(players[i].name,(i%2)+2)
+            i += 1
+        return ret
+
+def getPlayer(pid, name="NOTFOUND"):
+		return known_player[pid]
 
 def fuzzy_find_player(name):
         ret = ""
@@ -114,32 +128,29 @@ def get_player_rank(p):
         except KeyError:
             return "N/A"
 
-                        
-def dumpRatings(top=0, forceMeanSort=False, enforceWhitelist=None):
-        global known_players
-        ret = ""
-        updatePlayerRanks(force=True)
+def quality(team1, team2, names1 = [""], names2 = [""]):
+    mu1 = sum(r.mu for r in team1)
+    mu2 = sum(r.mu for r in team2)
+    mu_tot = mu1 + mu2
+    sig1 = sum(r.sigma for r in team1)
+    sig2 = sum(r.sigma for r in team2)
+    sigtot = sig1 + sig2
 
-        if forceMeanSort:
-            sort = sorted(known_players.values(), \
-                            key=lambda x: x.rating.mu,reverse=True)
-        else:
-            sort = sorted(known_players.values(), \
-                            key=lambda x: TS.get_env().expose(x.rating),reverse=True)
-        if enforceWhitelist:
-            sort = list(filter(lambda x: x.name in enforceWhitelist, sort))
+    names1 = list(map(lambda x: str(x.name), names1))
+    names2 = list(map(lambda x: str(x.name), names2))
 
-        tmp = ["{} {} mean: {} var: {}   WinRatio: {}% ({} Games)".format( \
-                        x.get_name().ljust(30), \
-                        str(int(TS.get_env().expose(x.rating))).rjust(5), \
-                        str(int(x.rating.mu)).rjust(4), \
-                        str(int(x.rating.sigma)).rjust(4),x.winratio().rjust(4), \
-                        str(x.games).rjust(3)) \
-                        for x in sort]
-        if top != 0:
-            tmp = tmp[:top]
-        count = 0
-        for s in tmp:
-            count += 1
-            ret += ("Rank: "+str(count).rjust(4) +" " + s + "\n") 
-        return ret
+    diff = abs(mu1 - mu2)
+    percent = 50 + diff/mu_tot*100
+    if percent > 100:
+        percent = 100
+
+    if mu1 > mu2:
+        string = "{} win at {:.2f}% - {:.2f} to {:.2f} Uncertainty: {:.2f}%".format(\
+                        ",".join(names1), \
+                        percent, mu1, mu2, sigtot/diff*100)
+    else:
+        string = "{} win at {:.2f}% - {:.2f} to {:.2f} Uncertainty: {:.2f}%".format(\
+                        ",".join(names2), \
+                        percent, mu2, mu1, sigtot/diff*100)
+    
+    return string

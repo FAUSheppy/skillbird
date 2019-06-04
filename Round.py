@@ -140,11 +140,11 @@ class Round:
         for pStr in winnersStr.split(","):
             if pStr == "":
                 continue
-            winners.update({PlayerInRound.deserialize(pStr):TS.new_rating()})
+            winners.update({PlayerInRound.deserialize(pStr):TS.newRating()})
         for pStr in losersStr.split(","):
             if pStr == "":
                 continue
-            losers.update({PlayerInRound.deserialize(pStr):TS.new_rating()})
+            losers.update({PlayerInRound.deserialize(pStr):TS.newRating()})
         startTime = datetime.strptime(startTimeStr, "%y %b %d %H:%M:%S")
         duration = timedelta(seconds=int(duration))
         return Round(winners, losers, _map, duration, startTime, winner_side)
