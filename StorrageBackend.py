@@ -143,4 +143,3 @@ def dumpRatings(top=0, forceMeanSort=False, enforceWhitelist=None):
             count += 1
             ret += ("Rank: "+str(count).rjust(4) +" " + s + "\n") 
         return ret
-
