@@ -27,7 +27,6 @@ def getRankRange():
         return invalidParameters()
 
     players = SB.getRankRange(start, end)
-    print(start, end)
     return "|".join([p.serialize() for p in players])
 
 @app.route('/findplayer')
