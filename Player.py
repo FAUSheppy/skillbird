@@ -81,6 +81,10 @@ class PlayerForDatabase(Player):
         def get_name(self):
             return self.name.encode('utf-8')[:25].decode('utf-8','ignore').rstrip(" ")
 
+        def serialize(self):
+            arr = [str(x) for x in [self.name, self.steamid, self.rating.mu, self.games, self.wins]]
+            return ",".join(arr)
+
 class PlayerFromDatabase(PlayerForDatabase):
         def __init__(line):
             super().__init__(None,None,None)
