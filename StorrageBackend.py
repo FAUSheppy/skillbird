@@ -7,6 +7,7 @@ known_players = dict()
 
 # care for cpu load #
 player_ranks = dict()
+playerRankList = []
 last_rank_update = datetime.now()
 
 #############################################################
@@ -57,6 +58,7 @@ def sync_to_database(players, win):
 def updatePlayerRanks(force=False):
     global last_rank_update
     global player_ranks
+    global playerRankList
 
     if force or last_rank_update - datetime.now() > timedelta(seconds=240):
         last_rank_update = datetime.now()
@@ -70,6 +72,10 @@ def updatePlayerRanks(force=False):
             else:
                 player_ranks.update({p:rank})
             rank += 1
+
+        # list of players in the right order for a leaderboard #
+        playerRankList = s
+
 
 #############################################################
 ################## Write/Load External DB ###################
@@ -151,3 +157,14 @@ def quality(team1, team2, names1 = [""], names2 = [""]):
                         percent, mu2, mu1, sigtot/diff*100)
     
     return string
+
+def getRankRange(start, end, revalidateRanks=False):
+    '''Returns a list of player, optionally flushing the ranks-cache first'''
+    global playerRankList
+
+    if revalidateRanks:
+        updatePlayerRanks(revalidateRanks)
+    
+    return playerRankList[start:end]
+
+
