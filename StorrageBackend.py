@@ -164,7 +164,7 @@ def getRankRange(start, end, revalidateRanks=True):
 
     if revalidateRanks:
         updatePlayerRanks(revalidateRanks)
-
+    
+    if start > len(playerRankList) or start >= end or end >= len(playerRankList):
+        return len(playerRankList)
     return playerRankList[start:end]
-
-

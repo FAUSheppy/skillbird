@@ -26,6 +26,8 @@ def getRankRange():
         return invalidParameters()
 
     players = SB.getRankRange(start, end)
+    if type(players) == int:
+        return "MAXENTRY:{}".format(players)
     return "\n".join([p.serialize() for p in players])
 
 @app.route('/findplayer')
