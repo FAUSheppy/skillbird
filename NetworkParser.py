@@ -95,7 +95,7 @@ def get_rebuild_team(string):
         p = DummyPlayer(pair.split("|")[0]);
         players += [p]
     players = list(map(players,lambda p: SB.known_players[p]))
-    players = sorted(players,key=lambda x: TS.get_env().expose(x.rating),reverse=True)
+    players = sorted(players,key=lambda x: TS.getEnviroment().expose(x.rating),reverse=True)
     count = 0
     
     # initial #
@@ -154,14 +154,14 @@ def parse_teams(data):
         if tmp in SB.known_players:
             ret[0].update({SB.known_players[tmp]:Storrage.known_players[tmp].rating})
         else:
-            ret[0].update({tmp:TS.new_rating()})
+            ret[0].update({tmp:TS.newRating()})
     for sid in team2:
         sid = sid.strip()
         tmp = Player.DummyPlayer(sid, sid)
         if tmp in SB.known_players:
             ret[1].update({SB.known_players[tmp]:Storrage.known_players[tmp].rating})
         else:
-            ret[1].update({tmp:TS.new_rating()})
+            ret[1].update({tmp:TS.newRating()})
     return ret
 
 def parse_players(data, lol=False):

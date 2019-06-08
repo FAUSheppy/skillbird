@@ -6,7 +6,7 @@ class Player:
             if rating:
                 self.rating = rating
             else:
-                self.rating = TS.new_rating()
+                self.rating = TS.newRating()
             self.steamid = steamid
             self.cur_name = name
         def __hash__(self):
@@ -25,7 +25,7 @@ class Player:
 
 class DummyPlayer(Player):
         def __init__(self, steamid, name="PLACEHOLDER", rating=None):
-            self.rating = TS.new_rating()
+            self.rating = TS.newRating()
             if rating:
                 self.rating = rating
             self.name     = name
@@ -37,7 +37,7 @@ class PlayerInRound(Player):
             self.name = name
             self.cur_name = name
             self.steamid = steamid
-            self.rating = TS.new_rating()
+            self.rating = TS.newRating()
             self.active_time     = datetime.timedelta(0)
             if type(team) != int or team > 3 or team < 0:
                 raise Exception("Invalid TeamID '{}', must be 0-3 (inkl.)".format(team))
