@@ -9,9 +9,6 @@ known_players = dict()
 player_ranks = dict()
 last_rank_update = datetime.now()
 
-def _get_known_players():
-    return known_players
-
 #############################################################
 ###################### Save/Load File #######################
 #############################################################
