@@ -5,6 +5,7 @@ import FileReader
 import argparse
 import StorrageBackend
 import NetworkListener
+import httpAPI
 
 parser = argparse.ArgumentParser(description='Insurgency rating python backend server')
 parser.add_argument('files', metavar='FILE', type=str, nargs='+',\
@@ -37,6 +38,7 @@ if __name__ == "__main__":
                 print(l)
         if not args.parse_only:
             print("Starting network-listener")
+            httpAPI.app.run()
             NetworkListener.listen()
         else:
             sys.exit(0)

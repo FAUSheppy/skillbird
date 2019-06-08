@@ -13,10 +13,11 @@ def _invalidParameters():
 
 @app.route('/getplayer')
 def getPlayer():
-	pname = flask.request.args.get("name")
+    pname = flask.request.args.get("name")
+    return pname
 
 @app.route('/rankrange')
-def getRankRange('/rankrange'):
+def getRankRange():
 	try:
 		start = int(flask.request.args.get("start"))
 		end   = int(flask.request.args.get("end"))
@@ -29,7 +30,7 @@ def getRankRange('/rankrange'):
 	return "|".join([p.serialize() for p in players])
 
 @app.route('/findplayer')
-def getRankRange('/findplayer'):
+def findPlayer():
 	string = flask.request.args.get("string")
 	players = SB.fuzzy_find_player(string)
 	return "|".join([p.serialize() for p in players])
