@@ -13,8 +13,7 @@ def _invalidParameters():
 
 @app.route('/getplayer')
 def getPlayer():
-    pname = flask.request.args.get("name")
-    return pname
+    raise NotImplementedError()
 
 @app.route('/rankrange')
 def getRankRange():
