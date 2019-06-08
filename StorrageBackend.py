@@ -64,7 +64,7 @@ def updatePlayerRanks(force=False):
         last_rank_update = datetime.now()
         s = sorted(known_players.values(), key=lambda x: TS.getEnviroment().expose(x.rating),reverse=True)
         now = datetime.now()
-        s = filter(lambda p: now - p.lastUpdate < timedelta(days=60), s)
+        s = list(filter(lambda p: now - p.lastUpdate < timedelta(days=60), s))
         rank = 1
         for p in s:
             if p in player_ranks:
@@ -74,7 +74,7 @@ def updatePlayerRanks(force=False):
             rank += 1
 
         # list of players in the right order for a leaderboard #
-        playerRankList = s
+        playerRankList = list(s)
 
 
 #############################################################
@@ -158,13 +158,13 @@ def quality(team1, team2, names1 = [""], names2 = [""]):
     
     return string
 
-def getRankRange(start, end, revalidateRanks=False):
+def getRankRange(start, end, revalidateRanks=True):
     '''Returns a list of player, optionally flushing the ranks-cache first'''
     global playerRankList
 
     if revalidateRanks:
         updatePlayerRanks(revalidateRanks)
-    
+
     return playerRankList[start:end]
 
 
