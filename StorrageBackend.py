@@ -186,9 +186,10 @@ def getRankListLength(revalidateRanks=False):
 def getRankRange(start, end, revalidateRanks=False):
     '''Returns a list of player, optionally flushing the ranks-cache first'''
     global playerRankList
-
+    
+    print(start,end)
     updatePlayerRanks(revalidateRanks)
     
-    if start > len(playerRankList) or start >= end or end >= len(playerRankList):
+    if start > len(playerRankList) or start >= end:
         return []
     return playerRankList[start:end]
