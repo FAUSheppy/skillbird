@@ -6,7 +6,7 @@ import flask
 app = flask.Flask("skillbird")
 
 ################## HTML HELPER ########################
-def _invalidParameters():
+def invalidParameters():
     return "500 - Invalid"
 
 ########################################################
