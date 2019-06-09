@@ -1,6 +1,12 @@
 ## What is "Skillbird" ?
 Skillbird is a framework around the python-Trueskill library, which can parse files of versus games to calculate a rating, matchmaking suggestions for future games or create predictions for the outcome of a game with certain team compositions.
 
+## Web Interface
+The [Open-web-leaderboard](https://github.com/FAUSheppy/open-web-leaderboard) can be used for visualization. If you leave all settings at default, it should just work out of the box.
+
+![open-web-leaderboard](https://media.atlantishq.de/leaderboard-github-picture.png)
+
+
 ## Adaption for your own Data
 ### Data Requirements
 To work correctly you data must have the following fields:
@@ -56,7 +62,7 @@ If you use the official source-plugin and it's output, you don't have to do anyt
                             A cache file which makes restarting the system fast
 
 ## Query Options
-Skillbird has a TCP-Query interface which supports the following queries. The separator for player-IDs is always a**comma** and the separator for for teams is always a **pipe** as before, those special characters may not be contained in any of the actual input values.
+Skillbird has a TCP-Query interface which supports the following queries. The separator for player-IDs is always a**comma** and the separator for for teams is always a **pipe** as before, those special characters may not be contained in any of the actual input values. A HTTP-api is work in progress (at the start of this project the interface was only intended for sourcemodplugins).
 
 ### Quality
 Get the balance quality of the current team composition.
