@@ -15,6 +15,10 @@ def _invalidParameters():
 def getPlayer():
     raise NotImplementedError()
 
+@app.route('/getmaxentries')
+def getMaxEntries():
+    return str(SB.getRankListLength())
+
 @app.route('/rankrange')
 def getRankRange():
     try:
@@ -26,8 +30,6 @@ def getRankRange():
         return invalidParameters()
 
     players = SB.getRankRange(start, end)
-    if type(players) == int:
-        return "MAXENTRY:{}".format(players)
     return "\n".join([p.serialize() for p in players])
 
 @app.route('/findplayer')

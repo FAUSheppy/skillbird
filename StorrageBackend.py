@@ -158,6 +158,14 @@ def quality(team1, team2, names1 = [""], names2 = [""]):
     
     return string
 
+def getRankListLength(revalidateRanks=True):
+    global playerRankList
+
+    if revalidateRanks:
+        updatePlayerRanks(revalidateRanks)
+    
+    return len(playerRankList)
+
 def getRankRange(start, end, revalidateRanks=True):
     '''Returns a list of player, optionally flushing the ranks-cache first'''
     global playerRankList
