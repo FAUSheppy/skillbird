@@ -8,7 +8,7 @@ known_players = dict()
 # care for cpu load #
 player_ranks = dict()
 playerRankList = []
-last_rank_update = datetime.now()
+last_rank_update = datetime.now()- timedelta(minutes=5)
 
 #############################################################
 ###################### Save/Load File #######################
@@ -190,5 +190,5 @@ def getRankRange(start, end, revalidateRanks=False):
     updatePlayerRanks(revalidateRanks)
     
     if start > len(playerRankList) or start >= end or end >= len(playerRankList):
-        return len(playerRankList)
+        return []
     return playerRankList[start:end]
