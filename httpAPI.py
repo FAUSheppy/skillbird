@@ -35,5 +35,5 @@ def getRankRange():
 @app.route('/findplayer')
 def findPlayer():
     string = flask.request.args.get("string")
-    players = SB.fuzzy_find_player(string)
-    return "|".join([p.serialize() for p in players])
+    players = SB.findPlayer(string)
+    return "|".join([pt[0].serialize() + "," + str(pt[1]) for pt in players])

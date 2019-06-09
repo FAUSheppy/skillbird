@@ -112,6 +112,11 @@ def getPlayer(pid, name="NOTFOUND"):
 		return known_player[pid]
 
 def fuzzy_find_player(name):
+        return "Not Implemented"
+
+def findPlayer(name):
+        global player_ranks
+
         ret = ""
         tup_list = []
         TS.lock()
@@ -122,7 +127,21 @@ def fuzzy_find_player(name):
         finally:
             TS.unlock()
         tmp = sorted(tup_list, key=lambda x: x[0], reverse=True)
-        return list(filter(lambda x: x[0] > 80, tmp))
+        players = list([x[1] for x in filter(lambda x: x[0] > 80, tmp)])
+        
+        # update ranks #
+        updatePlayerRanks(force=True)
+
+        # build rank tupel #
+        playerRankTupel = []
+        for p in players:
+            try:
+                playerRankTupel += [(p, player_ranks[p])]
+            except KeyError:
+                playerRankTupel += [(p, "N/A")]
+
+        return playerRankTupel
+
 
 def get_player_rank(p):
         global player_ranks
