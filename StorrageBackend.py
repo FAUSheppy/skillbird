@@ -60,7 +60,7 @@ def updatePlayerRanks(force=False):
     global player_ranks
     global playerRankList
 
-    if force or last_rank_update - datetime.now() > timedelta(seconds=240):
+    if force or datetime.now() - last_rank_update > timedelta(seconds=240):
         last_rank_update = datetime.now()
         s = sorted(known_players.values(), key=lambda x: TS.getEnviroment().expose(x.rating),reverse=True)
         now = datetime.now()
