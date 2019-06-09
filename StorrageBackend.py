@@ -124,22 +124,21 @@ def findPlayer(name):
             for p in known_players.values():
                 sim = fuzz.token_set_ratio(name.lower(),p.name.lower())
                 tup_list += [(sim,p)]
+            tmp = sorted(tup_list, key=lambda x: x[0], reverse=True)
+            players = list([x[1] for x in filter(lambda x: x[0] > 80, tmp)])
+            
+            # update ranks #
+            updatePlayerRanks(force=True)
+    
+            # build rank tupel #
+            playerRankTupel = []
+            for p in players:
+                try:
+                    playerRankTupel += [(p, player_ranks[p])]
+                except KeyError:
+                    playerRankTupel += [(p, "N/A")]
         finally:
             TS.unlock()
-        tmp = sorted(tup_list, key=lambda x: x[0], reverse=True)
-        players = list([x[1] for x in filter(lambda x: x[0] > 80, tmp)])
-        
-        # update ranks #
-        updatePlayerRanks(force=True)
-
-        # build rank tupel #
-        playerRankTupel = []
-        for p in players:
-            try:
-                playerRankTupel += [(p, player_ranks[p])]
-            except KeyError:
-                playerRankTupel += [(p, "N/A")]
-
         return playerRankTupel
 
 
