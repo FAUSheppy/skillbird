@@ -33,9 +33,6 @@ if __name__ == "__main__":
                               nofollow=args.nofollow, \
                               oneThread=args.oneThread, \
                               cacheFile=args.cacheFile)
-        if args.oneThread:
-            for l in StorrageBackend.dumpRatings().split("\n"):
-                print(l)
         if not args.parse_only:
             print("Starting network-listener")
             httpAPI.app.run()
