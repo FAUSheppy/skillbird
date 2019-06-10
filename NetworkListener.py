@@ -12,6 +12,7 @@ def listen():
     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     s.bind((TCP_IP, TCP_PORT))
     s.listen(5)
+    print("TCP listener on {}:{}".format(TCP_IP, TCP_PORT))
     while True:
         conn, addr = s.accept();
         Thread(target=t_listen,args=(conn,)).start();

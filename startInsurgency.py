@@ -6,6 +6,7 @@ import argparse
 import StorrageBackend
 import NetworkListener
 import httpAPI
+from threading import Thread
 
 parser = argparse.ArgumentParser(description='Insurgency rating python backend server')
 parser.add_argument('files', metavar='FILE', type=str, nargs='+',\
@@ -34,8 +35,8 @@ if __name__ == "__main__":
                               oneThread=args.oneThread, \
                               cacheFile=args.cacheFile)
         if not args.parse_only:
-            print("Starting network-listener")
-            httpAPI.app.run()
+            print("Starting network-listener(s)")
+            Thread(target=httpAPI.app.run).start()
             NetworkListener.listen()
         else:
             sys.exit(0)
