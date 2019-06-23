@@ -2,7 +2,7 @@
 Skillbird is a framework around the python-Trueskill library, which can parse files of versus games to calculate a rating, matchmaking suggestions for future games or create predictions for the outcome of a game with certain team compositions.
 
 ## Web Interface
-The [Open-web-leaderboard](https://github.com/FAUSheppy/open-web-leaderboard) can be used for visualization. If you leave all settings at default, it should just work out of the box.
+The [Open-web-leaderboard](https://github.com/FAUSheppy/open-web-leaderboard) can be used for visualization. If you leave all settings at default, it should work out of the box.
 
 ![open-web-leaderboard](https://media.atlantishq.de/leaderboard-github-picture.png)
 
@@ -108,6 +108,5 @@ Return some statistics about the system
     Output: string: general information
 
 ## Related projects
-- [skillbird-sourcemod](https://gitlab.com/Sheppy_/skillbird-sourcemod) Sourcemod plugin that produces the necessary output for Source-based servers.
-- [ESE-Overload](https://gitlab.com/Sheppy_/ese-overlord) Balancing custom games based on role preferences in *Leauge of Legends*.
-- [Skillbird Examples](https://gitlab.com/Sheppy_/skillbird-examples) Smaller projects by me that use this frameworks like the *Leauge of Legends* pro-play predictor.
+- [skillbird-sourcemod](https://github.com/FAUSheppy/skillbird-sourcemod) Sourcemod plugin that produces the necessary output for Source-based servers.
+- [open-web-leaderboard](https://github.com/FAUSheppy/open-web-leaderboard)
