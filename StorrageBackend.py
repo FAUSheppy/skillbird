@@ -49,6 +49,7 @@ def sync_to_database(players, win):
             known_players[p].wins += 1
         known_players[p].games += 1
         known_players[p].lastUpdate = datetime.now()
+
     updatePlayerRanks()
 
 #############################################################
@@ -193,3 +194,10 @@ def getRankRange(start, end, revalidateRanks=False):
     if start > len(playerRankList) or start >= end:
         return []
     return playerRankList[start:end]
+
+def hasChanged(time):
+    '''Indicates to a http-querier if the availiable data has changed'''
+    if last_rank_update > time:
+        return "True"
+    else:
+        return "False"

@@ -37,3 +37,9 @@ def findPlayer():
     string = flask.request.args.get("string")
     players = SB.findPlayer(string)
     return "|".join([pt[0].serialize() + "," + str(pt[1]) for pt in players])
+
+@app.route('/haschanged')
+def hasChanged():
+    string = flask.request.args.get("time")
+    # TODO get time with timezone
+    return SB.hasChanged(localizedTime)
