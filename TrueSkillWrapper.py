@@ -49,6 +49,38 @@ def rate_teams_simple(winner_team, loser_team, weights=None):
         clean_rounds += 1
         return True
 
+def rate_ffa(players):
+        '''Takes a list of players in reverse finishing order (meaning best first)
+            perform a truskill evaluation and write it to database'''
+
+        # one player doesnt make sense #
+        if len(players) <= 1:
+            return False
+
+        # create list of dicts for trueskill-library #
+        playerRatingTupelDicts = []
+        for p in players:
+            playerRatingTupelDicts += [{p:p.rating}]
+
+        # generate ranks
+        ranks = [ i for i in range(0, len(playerRatingTupelDicts))]
+
+        # rate and safe to database #
+        rated = env.rate(playerRatingTupelDicts)
+
+        # create sync dict #
+        # first player is handled seperately #
+        allPlayer = dict()
+        for playerRatingDict in rated[1:]:
+            allPlayer.update(playerRatingDict)
+
+        # only first player gets win #
+        StorrageBackend.sync_to_database(rated[0], True)
+        StorrageBackend.sync_to_database(allPlayer, False)
+
+        for p in allPlayer.keys():
+            print(p)
+
 #####################################################
 ################### LOCK/GETTER ####################
 #####################################################
