@@ -50,7 +50,7 @@ def sync_to_database(players, win):
         known_players[p].games += 1
         known_players[p].lastUpdate = datetime.now()
 
-    updatePlayerRanks()
+    updatePlayerRanks(force=True)
 
 #############################################################
 ##################### Handle Rank Cache #####################
