@@ -57,26 +57,36 @@ def sync_to_database(players, win):
 #############################################################
 
 def updatePlayerRanks(force=False, minGames=10, maxInactivityDays=60):
+    '''Precalculate player ranks to be used for low performance impact'''
+
     global last_rank_update
     global player_ranks
     global playerRankList
 
     if force or datetime.now() - last_rank_update > timedelta(seconds=240):
         last_rank_update = datetime.now()
-        s = sorted(known_players.values(), key=lambda x: TS.getEnviroment().expose(x.rating),reverse=True)
-        now = datetime.now()
-        s = list(filter(lambda p: now - p.lastUpdate < timedelta(days=maxInactivityDays) \
-                            and p.games >= minGames, s))
-        rank = 1
-        for p in s:
+
+        # sort players by rank #
+        sortKey = key = lambda x: TS.getEnviroment().expose(x.rating)
+        sortedPlayers = sorted(known_players.values(), key=sortKey, reverse=True)
+
+        # filter out inactive and low-game players #
+        maxInactivityDelta = timedelta(days=maxInactivityDays)
+        filterKey          = lambda p: (last_rank_update - p.lastUpdate) < maxInactivityDelta \
+                                                                            and p.games >= minGames
+        filteredPlayers    = list(filter(filterKey, sortedPlayers))
+
+        # assing ranks to player objects #
+        rankCounter = 1
+        for p in filteredPlayers:
             if p in player_ranks:
-                player_ranks[p] = rank
+                player_ranks[p] = rankCounter
             else:
-                player_ranks.update({p:rank})
-            rank += 1
+                player_ranks.update({p:rankCounter})
+            rankCounter += 1
 
         # list of players in the right order for a leaderboard #
-        playerRankList = list(s)
+        playerRankList = list(filteredPlayers)
 
 
 #############################################################
