@@ -6,8 +6,8 @@ import flask
 app = flask.Flask("skillbird")
 
 ################## HTML HELPER ########################
-def invalidParameters():
-    return "500 - Invalid"
+def invalidParameters(*args):
+    return "500 - Invalid {}".format(args)
 
 ########################################################
 
@@ -27,7 +27,7 @@ def getRankRange():
         if end - start <= 0 or end - start > 100:
             raise ValueError()
     except ValueError:
-        return invalidParameters()
+        return invalidParameters(start, end)
 
     players = SB.getRankRange(start, end)
     return "\n".join([p.serialize() for p in players])
