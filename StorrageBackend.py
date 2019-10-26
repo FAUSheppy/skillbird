@@ -56,7 +56,7 @@ def sync_to_database(players, win):
 ##################### Handle Rank Cache #####################
 #############################################################
 
-def updatePlayerRanks(force=False):
+def updatePlayerRanks(force=False, minGames=10, maxInactivityDays=60):
     global last_rank_update
     global player_ranks
     global playerRankList
@@ -65,7 +65,8 @@ def updatePlayerRanks(force=False):
         last_rank_update = datetime.now()
         s = sorted(known_players.values(), key=lambda x: TS.getEnviroment().expose(x.rating),reverse=True)
         now = datetime.now()
-        s = list(filter(lambda p: now - p.lastUpdate < timedelta(days=60), s))
+        s = list(filter(lambda p: now - p.lastUpdate < timedelta(days=maxInactivityDays) \
+                            and p.games >= minGames, s))
         rank = 1
         for p in s:
             if p in player_ranks:
