@@ -35,6 +35,8 @@ def sync_from_database(players):
             p.rating   = known_players[p].rating
             if type(players) == dict:
                 players[p] = p.rating
+            if not p.name or p.name == "PLACEHOLDER":
+                p.name = known_players[p].name
         else:
             lastUpdate = datetime.now()
             known_players.update(\
@@ -106,27 +108,11 @@ def save_psql():
 ###################### Python API ###########################
 #############################################################
 
-def getBalanceForPlayers(players, buddies=None):
-        if not players:
-            return ""
-        StorrageBackend.sync_from_database(players)
-        for p in players:
-            print(p, p.rating)
-        arr = sorted(players, key=lambda x: x.rating.mu, reverse=True)
-        ret=""
-        i = 0
-        while i < len(arr):
-            ret += "{}|{},".format(players[i].name,(i%2)+2)
-            i += 1
-        return ret
-
 def getPlayer(pid, name="NOTFOUND"):
-		return known_player[pid]
+        return known_player[pid]
 
-def fuzzy_find_player(name):
-        return "Not Implemented"
-
-def findPlayer(name):
+def searchPlayerByName(name):
+        '''Find a player by his name'''
         global player_ranks
 
         ret = ""
@@ -146,22 +132,71 @@ def findPlayer(name):
             playerRankTupel = []
             for p in players:
                 try:
-                    playerRankTupel += [(p, player_ranks[p])]
+                    playerRankTupel += [(p.steamid, p.name, p.rating, player_ranks[p])]
                 except KeyError:
-                    playerRankTupel += [(p, "N/A")]
+                    noRankExplanation = "inactive"
+                    if p.games < 10:
+                        noRankExplanation = "not enough games"
+                    playerRankTupel += [(p.steamid, p.name, p.rating, noRankExplanation)]
         finally:
             TS.unlock()
         return playerRankTupel
 
+def getPlayerRank(playerID):
+    '''Get a players rank'''
 
-def get_player_rank(p):
-        global player_ranks
-        try:
-            return str(player_ranks[p])
-        except KeyError:
-            return "N/A"
+    global player_ranks
+    try:
+        return str(player_ranks[playerID])
+    except KeyError:
+        return "N/A"
 
-def quality(team1, team2, names1 = [""], names2 = [""]):
+def getBalancedTeams(players, buddies=None, teamCount=2):
+    '''Balance a number of players into teams'''
+    
+    if teamCount != 2:
+        raise NotImplementedError("Only supporting balancing into two teams currently")
+    if not players:
+        return ValueError("Input contains no players")
+    
+    if type(players[0]) == str:
+        players = [ Player.DummyPlayer(playerID) for playerID in players]
+    
+    sync_from_database(players)
+    
+    arr = sorted(players, key=lambda x: x.rating.mu, reverse=True)
+    ret=""
+    i = 0
+    while i < len(arr):
+        ret += "{}|{},".format(players[i].name,(i%2)+2)
+        i += 1
+    return ret
+
+def qualityForTeams(teamArray):
+    '''Get quality for number of teams with players'''
+
+    if not teamArray or len(teamArray) < 2 or not teamArray[0]:
+        raise ValueError("Team Array must be more than one team with more than one player each")
+        
+    if type(teamArray[0][0]) == str:
+        teamArray = [ [ Player.DummyPlayer(playerID) for playerID in team ] for team in teamArray ]
+    
+    for team in teamArray:
+        print(team[0].steamid)
+        sync_from_database(team)
+
+    teamAsRatings = [ [ player.rating for player in team ] for team in teamArray ]
+    teamAsNames   = [ [ player.name for player in team ] for team in teamArray ]
+    
+    # TODO: implement for !=2 teams #
+    if len(teamArray) != 2:
+        raise NotImplementedError("Quality is only supported for exactly two teams")
+    
+    return qualityForRatings(teamAsRatings[0], teamAsRatings[1], teamAsNames[0], teamAsNames[1])
+    
+def qualityForRatings(team1, team2, names1 = [""], names2 = [""]):
+    '''Get Quality for two arrays containing TrueSkill.Rating objects'''
+
     mu1 = sum(r.mu for r in team1)
     mu2 = sum(r.mu for r in team2)
     mu_tot = mu1 + mu2
@@ -169,34 +204,31 @@ def quality(team1, team2, names1 = [""], names2 = [""]):
     sig2 = sum(r.sigma for r in team2)
     sigtot = sig1 + sig2
 
-    names1 = list(map(lambda x: str(x.name), names1))
-    names2 = list(map(lambda x: str(x.name), names2))
+    print(team1, team2)
 
     diff = abs(mu1 - mu2)
     percent = 50 + diff/mu_tot*100
+
     if percent > 100:
         percent = 100
 
     if mu1 > mu2:
-        string = "{} win at {:.2f}% - {:.2f} to {:.2f} Uncertainty: {:.2f}%".format(\
-                        ",".join(names1), \
-                        percent, mu1, mu2, sigtot/diff*100)
+        string = "{} win at {:.2f}% - {:.2f} to {:.2f}".format(names1, percent, mu1, mu2 )
     else:
-        string = "{} win at {:.2f}% - {:.2f} to {:.2f} Uncertainty: {:.2f}%".format(\
-                        ",".join(names2), \
-                        percent, mu2, mu1, sigtot/diff*100)
+        string = "{} win at {:.2f}% - {:.2f} to {:.2f}".format(names2, percent, mu2, mu1 )
     
     return string
 
 def getRankListLength(revalidateRanks=False):
-    global playerRankList
+    '''Get the total number of entries in the ranking'''
 
+    global playerRankList
     updatePlayerRanks(revalidateRanks)
-    
     return len(playerRankList)
 
 def getRankRange(start, end, revalidateRanks=False):
     '''Returns a list of player, optionally flushing the ranks-cache first'''
+
     global playerRankList
     
     print(start,end)
@@ -206,9 +238,15 @@ def getRankRange(start, end, revalidateRanks=False):
         return []
     return playerRankList[start:end]
 
-def hasChanged(time):
+def rankHasChanged(time):
     '''Indicates to a http-querier if the availiable data has changed'''
+
     if last_rank_update > time:
         return "True"
     else:
         return "False"
+
+def debugInformation():
+    '''Dump a string of debugging information (this may take some times)'''
+
+    return [ "{} {} {}".format(p.steamid, p.name, p.rating) for p in known_players.values() ]

@@ -11,9 +11,14 @@ def invalidParameters(*args):
 
 ########################################################
 
+@app.route('/dumpdebug')
+def dumpDebug():
+    return "<br>".join(SB.debugInformation())
+
 @app.route('/getplayer')
 def getPlayer():
-    raise NotImplementedError()
+    playerName = flask.request.args.get("name")
+    return str(SB.searchPlayerByName(playerName))
 
 @app.route('/getmaxentries')
 def getMaxEntries():
@@ -32,14 +37,23 @@ def getRankRange():
     players = SB.getRankRange(start, end)
     return "\n".join([p.serialize() for p in players])
 
-@app.route('/findplayer')
-def findPlayer():
-    string = flask.request.args.get("string")
-    players = SB.findPlayer(string)
-    return "|".join([pt[0].serialize() + "," + str(pt[1]) for pt in players])
-
 @app.route('/haschanged')
 def hasChanged():
     string = flask.request.args.get("time")
     # TODO get time with timezone
-    return SB.hasChanged(localizedTime)
+    return SB.rankHasChanged(localizedTime)
+
+@app.route('/getbalancedteams')
+def getBalancedTeams():
+    players = flask.request.args.get("players").split(",")
+    return SB.getBalancedTeams(players)
+
+@app.route('/quality')
+def quality():
+    '''Get a game quality estimate for two or more given teams'''
+    string = flask.request.args.get("playerswithteams")
+    teams = string.split("|")
+    if len(teams) < 2:
+        flask.abort("Invalid input string: {}".format(string))
+    teams = [ x.split(",") for x in teams ]
+    return SB.qualityForTeams(teams)
