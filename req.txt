@@ -1,0 +1,4 @@
+flask
+fuzzywuzzy
+trueskill
+psycopg2-binary
