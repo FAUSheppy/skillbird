@@ -15,15 +15,15 @@ last_rank_update = datetime.now()- timedelta(minutes=5)
 #############################################################
 
 def load_save():
-        with open("score.log") as f:
-                for l in f:
-                        p = Player.PlayerFormDatabase(l)
-                        known_players[p.steamid] = p
+    with open("score.log") as f:
+        for l in f:
+            p = Player.PlayerFormDatabase(l)
+            known_players[p.steamid] = p
 
 def save_to_file(fname="score.log"):
-        with open(fname,"w") as f:
-                for p in known_players.values():
-                        f.write(p.toCSV()+'\n')
+    with open(fname,"w") as f:
+        for p in known_players.values():
+            f.write(p.toCSV()+'\n')
 
 #############################################################
 ###################### SyncPlayerDict #######################
@@ -96,51 +96,51 @@ def updatePlayerRanks(force=False, minGames=10, maxInactivityDays=60):
 #############################################################
 
 def save_event(event):
-        return
+    return
 
 def save_psql():
-        f=open("pass.secret",'r')
-        pw=f.readline().strip();
-        f.close()
-        PSQL.save("insurgency", "insurgencyUser", "localhost", pw, known_players)
+    f=open("pass.secret",'r')
+    pw=f.readline().strip();
+    f.close()
+    PSQL.save("insurgency", "insurgencyUser", "localhost", pw, known_players)
 
 #############################################################
 ###################### Python API ###########################
 #############################################################
 
 def getPlayer(pid, name="NOTFOUND"):
-        return known_player[pid]
+    return known_player[pid]
 
 def searchPlayerByName(name):
-        '''Find a player by his name'''
-        global player_ranks
+    '''Find a player by his name'''
+    global player_ranks
 
-        ret = ""
-        tup_list = []
-        TS.lock()
-        try:
-            for p in known_players.values():
-                sim = fuzz.token_set_ratio(name.lower(),p.name.lower())
-                tup_list += [(sim,p)]
-            tmp = sorted(tup_list, key=lambda x: x[0], reverse=True)
-            players = list([x[1] for x in filter(lambda x: x[0] > 80, tmp)])
-            
-            # update ranks #
-            updatePlayerRanks(force=True)
+    ret = ""
+    tup_list = []
+    TS.lock()
+    try:
+        for p in known_players.values():
+            sim = fuzz.token_set_ratio(name.lower(),p.name.lower())
+            tup_list += [(sim,p)]
+        tmp = sorted(tup_list, key=lambda x: x[0], reverse=True)
+        players = list([x[1] for x in filter(lambda x: x[0] > 80, tmp)])
+        
+        # update ranks #
+        updatePlayerRanks(force=True)
     
-            # build rank tupel #
-            playerRankTupel = []
-            for p in players:
-                try:
-                    playerRankTupel += [(p.steamid, p.name, p.rating, player_ranks[p])]
-                except KeyError:
-                    noRankExplanation = "inactive"
-                    if p.games < 10:
-                        noRankExplanation = "not enough games"
-                    playerRankTupel += [(p.steamid, p.name, p.rating, noRankExplanation)]
-        finally:
-            TS.unlock()
-        return playerRankTupel
+        # build rank tupel #
+        playerRankTupel = []
+        for p in players:
+            try:
+                playerRankTupel += [(p.steamid, p.name, p.rating, player_ranks[p])]
+            except KeyError:
+                noRankExplanation = "inactive"
+                if p.games < 10:
+                    noRankExplanation = "not enough games"
+                playerRankTupel += [(p.steamid, p.name, p.rating, noRankExplanation)]
+    finally:
+        TS.unlock()
+    return playerRankTupel
 
 def getPlayerRank(playerID):
     '''Get a players rank'''
