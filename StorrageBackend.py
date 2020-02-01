@@ -128,19 +128,18 @@ def searchPlayerByName(name):
         # update ranks #
         updatePlayerRanks(force=True)
     
-        # build rank tupel #
-        playerRankTupel = []
+        resultPlayers = []
         for p in players:
             try:
-                playerRankTupel += [(p.steamid, p.name, p.rating, player_ranks[p])]
+                resultPlayers += [(p.steamid, p.name, p.rating, player_ranks[p])]
             except KeyError:
                 noRankExplanation = "inactive"
                 if p.games < 10:
                     noRankExplanation = "not enough games"
-                playerRankTupel += [(p.steamid, p.name, p.rating, noRankExplanation)]
+                resultPlayers += [(p.steamid, p.name, p.rating, noRankExplanation)]
     finally:
         TS.unlock()
-    return playerRankTupel
+    return resultPlayers
 
 def getPlayerRank(playerID):
     '''Get a players rank'''
@@ -172,13 +171,15 @@ def getBalancedTeams(players, buddies=None, teamCount=2):
         i += 1
     return ret
 
-def qualityForTeams(teamArray):
+def qualityForTeams(teamArray, useNames=True):
     '''Get quality for number of teams with players'''
 
     if not teamArray or len(teamArray) < 2 or not teamArray[0]:
         raise ValueError("Team Array must be more than one team with more than one player each")
         
-    if type(teamArray[0][0]) == str:
+    if useNames:
+        teamArray = [ [ searchPlayerByName(playerID)[0] for playerID in team ] for team in teamArray ]
+    elif type(teamArray[0][0]) == str:
         teamArray = [ [ Player.DummyPlayer(playerID) for playerID in team ] for team in teamArray ]
     
     for team in teamArray:
