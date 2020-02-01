@@ -231,9 +231,7 @@ def getRankRange(start, end, revalidateRanks=False):
 
     global playerRankList
     
-    print(start,end)
     updatePlayerRanks(revalidateRanks)
-    
     if start > len(playerRankList) or start >= end:
         return []
     return playerRankList[start:end]
