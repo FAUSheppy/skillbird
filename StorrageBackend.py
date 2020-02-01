@@ -150,7 +150,7 @@ def getPlayerRank(playerID):
     except KeyError:
         return "N/A"
 
-def getBalancedTeams(players, buddies=None, teamCount=2):
+def getBalancedTeams(players, buddies=None, teamCount=2, useNames=False):
     '''Balance a number of players into teams'''
     
     if teamCount != 2:
@@ -158,17 +158,25 @@ def getBalancedTeams(players, buddies=None, teamCount=2):
     if not players:
         return ValueError("Input contains no players")
     
-    if type(players[0]) == str:
+    if useNames:
+        players = [ Player.DummyPlayer(searchPlayerByName(playerID)[0][0]) for playerID in players ]
+    elif type(players[0]) == str:
         players = [ Player.DummyPlayer(playerID) for playerID in players]
     
     sync_from_database(players)
     
-    arr = sorted(players, key=lambda x: x.rating.mu, reverse=True)
-    ret=""
-    i = 0
-    while i < len(arr):
-        ret += "{}|{},".format(players[i].name,(i%2)+2)
-        i += 1
+    sortedPlayers = sorted(players, key=lambda x: x.rating.mu, reverse=True)
+    team1Rating = 0
+    team2Rating = 0
+    ret = ""
+
+    for p in sortedPlayers:
+        if team1Rating <= team2Rating:
+            ret += "{}|{},".format(p.name, 2)
+            team1Rating += p.rating.mu
+        else:
+            ret += "{}|{},".format(p.name, 3)
+            team2Rating += p.rating.mu
     return ret
 
 def qualityForTeams(teamArray, useNames=False):

@@ -46,7 +46,8 @@ def hasChanged():
 @app.route('/getbalancedteams')
 def getBalancedTeams():
     players = flask.request.args.get("players").split(",")
-    return SB.getBalancedTeams(players)
+    useNames = flask.request.args.get("names")
+    return SB.getBalancedTeams(players, useNames=bool(useNames))
 
 @app.route('/quality')
 def quality():
