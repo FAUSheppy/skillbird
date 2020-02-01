@@ -171,19 +171,19 @@ def getBalancedTeams(players, buddies=None, teamCount=2):
         i += 1
     return ret
 
-def qualityForTeams(teamArray, useNames=True):
+def qualityForTeams(teamArray, useNames=False):
     '''Get quality for number of teams with players'''
 
     if not teamArray or len(teamArray) < 2 or not teamArray[0]:
         raise ValueError("Team Array must be more than one team with more than one player each")
         
     if useNames:
-        teamArray = [ [ searchPlayerByName(playerID)[0] for playerID in team ] for team in teamArray ]
+        teamArray = [ [ Player.DummyPlayer(searchPlayerByName(playerID)[0][0])
+                                                for playerID in team ] for team in teamArray ]
     elif type(teamArray[0][0]) == str:
         teamArray = [ [ Player.DummyPlayer(playerID) for playerID in team ] for team in teamArray ]
     
     for team in teamArray:
-        print(team[0].steamid)
         sync_from_database(team)
 
     teamAsRatings = [ [ player.rating for player in team ] for team in teamArray ]
@@ -205,7 +205,7 @@ def qualityForRatings(team1, team2, names1 = [""], names2 = [""]):
     sig2 = sum(r.sigma for r in team2)
     sigtot = sig1 + sig2
 
-    print(team1, team2)
+    # print(team1, names1, team2, names2)
 
     diff = abs(mu1 - mu2)
     percent = 50 + diff/mu_tot*100

@@ -52,8 +52,9 @@ def getBalancedTeams():
 def quality():
     '''Get a game quality estimate for two or more given teams'''
     string = flask.request.args.get("playerswithteams")
+    useNames = flask.request.args.get("names")
     teams = string.split("|")
     if len(teams) < 2:
         flask.abort("Invalid input string: {}".format(string))
     teams = [ x.split(",") for x in teams ]
-    return SB.qualityForTeams(teams)
+    return SB.qualityForTeams(teams, useNames=bool(useNames))
