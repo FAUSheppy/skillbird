@@ -1,111 +1,77 @@
-## What is "Skillbird" ?
+# What is "Skillbird" ?
 Skillbird is a framework around the python-Trueskill library, which can parse files of versus games to calculate a rating, matchmaking suggestions for future games or create predictions for the outcome of a game with certain team compositions.
 
-## Web Interface
+# Web Interface
 The [Open-web-leaderboard](https://github.com/FAUSheppy/open-web-leaderboard) can be used for visualization. If you leave all settings at default, it should work out of the box.
 
 ![open-web-leaderboard](https://media.atlantishq.de/leaderboard-github-picture.png)
 
 
-## Adaption for your own Data
-### Data Requirements
-To work correctly you data must have the following fields:
-- unique player id or name
-- player(s) in winning and losing team
+# Data Transmission
+## /event-blob
+Your server may collect certain events during a match of two teams and columinatively report them to the server, which will then evalute those event into a single Round. The events must be submitted as a *JSON-list* with *Content-Type application/json* in a field called *"events"*. Event must be dictionary-like *JSON*-objects as described below.
 
-You may also have the following informations:
-- data/time of the game (you cannot use the cached-rebuild feature without this)
-- time players spent playing compared to the full length of the game
-- teamchanges of players
-- different maps
+    {
+        events : [ { ... }, { ... } ]
 
-### Data Input
-If you use the official source-plugin and it's output, you don't have to do anything. Alternatively can write your own parser (see the skillbird-examples project), or you can conform to the Source-format which supports the following log-lines. None of the input values may contain any of the separators used (**pipe** and **comma**) or the line identifier (**0x42**).
+    }
 
-    # reset state
-    0x42,plugin_unloaded
-    
-    # declare the current map
-    0x42,mapname,MAP_NAME
-    
-    # start a round
-    0x42,round_start_active,PLAYER_ID|PLAYER_NAME|TEAMI_D,PLAYER_ID....
-    
-    # record team changes (ct) or disconnects (dc) and the team composition after it
-    # the backend will handle those accordingly
-    0x42,ct,PLAYER_ID|PLAYER_NAME|TEAMI_D,PLAYER_ID....
-    0x42,dc,PLAYER_ID|PLAYER_NAME|TEAMI_D,PLAYER_ID....
+### ActivePlayersEvent
+This events lists all players currently in the game, it must be fired whenever a new player connects, changes team or disconnects, but may also be fired at any other point. The *NUMERIC_TEAM_IDENTIIER* must be 0 for *no team*, 1 for *observers* or 2/3 respectively for players actually in one of the teams.
 
-    # declare the team-composition at the end of the round
-    # the backend will use this information for sanity checks
-    0x42,round_end_active,PLAYER_ID|PLAYER_NAME|TEAMI_D,PLAYER_ID....
-    
-    # name the winning team  and end the round
-    0x42,winner,WINNING_TEAM_ID
+    {
+        "etype"     : "active_players",
+        "timestamp" : ISO_TIMESTAMP,
+        "players"   : [
+                        {
+                            "id"    : UNIQUE_PLAYER_ID,
+                            "name"  : COLOQUIAL_NAME,
+                            "team"  : NUMERIC_TEAM_IDENTIIER
+                        }
+                        ...
+                      ]
+    }
 
-## Usage
-    usage: startInsurgency.py [-h] [--parse-only] [--start-at-end] [--no-follow]
-                              [--one-thread] [--cache-file CACHEFILE]
-                              FILE [FILE ...]
-    
-    positional arguments:
-      FILE                  one or more logfiles to parse
-    
-    optional arguments:
-      -h, --help            show this help message and exit
-      --parse-only, -po     only parse, do not listen for queries
-      --start-at-end, -se   start at the end of each file (overwrites no-follow)
-      --no-follow, -nf      wait for changes on the files (does not imply start-
-                            at-end)
-      --one-thread          run everything in main thread (implies no-follow)
-      --cache-file CACHEFILE
-                            A cache file which makes restarting the system fast
+### WinnerInformationEvent
+Event annotating who won a round. Any single round *MUST* only have one such Event.
 
-## Query Options
-Skillbird has a TCP-Query interface which supports the following queries. The separator for player-IDs is always a**comma** and the separator for for teams is always a **pipe** as before, those special characters may not be contained in any of the actual input values. A HTTP-api is work in progress (at the start of this project the interface was only intended for sourcemodplugins).
+    {
+        "etype"         : "winner",
+        "timestamp"     : ISO_TIMESTAMP,
+        "winnerTeam"    : NUMERIC_TEAM_IDENTIIER
+    }
 
-### Quality
-Get the balance quality of the current team composition.
+### MapInformationEvent
+Optional event to annotate the map that was played on. Each individual round must only have one such event.
 
-    Input:  quality,LIST_OF_PLAYERS_TEAM_1|LIST_OF_PLAYERS_TEAM_2
-    Output: float between 0 and 100
+    {
+        "etype"     : "map",
+        "timestamp" : ISO_TIMESTAMP,
+        "map"       : MAP_NAME
+    }
 
-### Balance
-Return a balance suggestion for a list of players.
-    
-    Input:  quality,LIST_OF_PLAYER_IDs
-    Output: string LIST_OF_PLAYERS_TEAM_1|LIST_OF_PLAYERS_TEAM_2
+## /submitt-round
+Your may transmitt a json dictionary representing an actuall round, this is intended more for backups and manual inputs rather than production use, it basicly skips *backends.eventStream.parse* and goes directly to *backends.trueskill.evaluateRound*.
 
-### Player
-Return rating information about a player-ID
+    {
+        "map"         : MAP_STRING_OR_NULL,
+        "winner-side" : NUMERIC_TEAM_ID_OR_NULL,
+        "winners"     : [ player, player, ... ],
+        "losers"      : [ player, player, ..., ],
+        "duration"    : DURATION_OF_ROUND_IN_SECONDS,
+        "startTime"   : ISO_TIMESTAMP_OR_NULL
+    }
 
-    Input:  quality,PLAYER_ID
-    Output: string: rating information
-   
+The player struct in the winner/loser-array must look like this:
 
-### Find
-Fuzzy search for the name or ID of a player
+    {
+        "playerId"   : PLAYER_ID_STR,
+        "playerName" : PLAYER_NAME,
+        "isFake"     : BOOLEAN,
+        "activeTime" : ACTIVE_TIME_IN_SECONDS,
+    }
 
-    Input: find,string
-    Output: string: rating information
-
-### Force rank reload
-For the reload of player ranks, which are usually updated every 5 minutes immediately.
-
-    Input: forceRankReload
-    Output: string: "OK" (if successful)
-
-### Dump
-Reload the player ranks cache and dump the entire contents.
-
-    Input: dump
-    Output: string: all players, their ratings and their ranks
-
-### Stats
-Return some statistics about the system
-
-    Input: stats
-    Output: string: general information
+You cannot ommit the duration/active\_time fields, if you don't need or want to use them set them to *1*. If the winner side is unkown or your game is symetrical (meaning there is no possible advantage for one side or the other, set it to *-1*.
 
 ## Related projects
 - [skillbird-sourcemod](https://github.com/FAUSheppy/skillbird-sourcemod) Sourcemod plugin that produces the necessary output for Source-based servers.

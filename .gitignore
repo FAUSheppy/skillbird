@@ -1,4 +1,7 @@
 cache
+*.sqlite
+*.sqlite.clean
+*.txt
 *.log
 *.swp
 __pycache__/

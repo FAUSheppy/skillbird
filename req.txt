@@ -1,4 +1,4 @@
 flask
 fuzzywuzzy
 trueskill
-psycopg2-binary
+sqlite3
