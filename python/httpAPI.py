@@ -79,7 +79,7 @@ def singleEvent():
         fileLastModified = dt.datetime.fromtimestamp(os.path.getmtime(fullPath))
         maxAge = dt.timedelta(minutes=30)
         if dt.datetime.now() - fileLastModified > maxAge:
-            print("Removed orphaned session file: {}".format(fullPath), sys.stderr)
+            print("Removed orphaned session file: {}".format(fullPath), file=sys.stderr)
             os.remove(fullPath)
 
     if jsonDict["etype"] == ROUND_END_IDENT:
