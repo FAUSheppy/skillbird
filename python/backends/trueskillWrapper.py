@@ -68,10 +68,10 @@ def evaluateRound(r):
 #####################################################
 
 def newRating(mu=None, sigma=None):
-    if mu:
-        return Rating(mu=mu, sigma=env.sigma)
-    elif mu and sigma:
+    if mu and sigma:
         return Rating(mu=mu, sigma=sigma)
+    elif mu:
+        return Rating(mu=mu, sigma=env.sigma)
     else:
         return env.create_rating()
 
