@@ -129,9 +129,8 @@ class EventSeries():
                             self.teamA += [playerInRound]
                         else:
                             self.teamB += [playerInRound]
-
                     ## Case 2: Player is in the wrong team
-                    if playerInRound not in self._teamFromId(playerInRound.team):
+                    elif playerInRound not in self._teamFromId(playerInRound.team):
                         index = self._teamFromId(playerInRound.team, inverted=True).index(playerInRound)
                         playerInEventSeries = self._teamFromId(playerInRound.team, inverted=True)[index]
                         
@@ -145,7 +144,6 @@ class EventSeries():
                             self.teamA += [playerInRound]
                         else:
                             self.teamB += [playerInRound]
-
                     ## Case 3: Player is already in the correct team
                     else:
                         index = self._teamFromId(playerInRound.team).index(playerInRound)
