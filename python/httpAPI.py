@@ -90,6 +90,7 @@ def singleEvent():
         os.remove(fullPath)
         matchRound = backends.eventStream.parse(events)
         evaluateRound(matchRound)
+        print(matchRound.toJson())
     else:
         with open(fullPath, "a") as f:
             f.write(json.dumps(jsonDict))
