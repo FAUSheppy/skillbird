@@ -185,6 +185,10 @@ class EventSeries():
             elif type(e) == MapInformationEvent:
                 self.map = e.map
 
+        ### check if we had a winner event ###
+        if self.winnerTeamId < 2:
+            raise ValueError("Winner event not present or faulty.")
+
         ### check if there are players in both teams ###
         if not self.winnerTeam or not self.loserTeam:
             raise ValueError("One of the teams was empty")
