@@ -122,15 +122,31 @@ class EventSeries():
             if type(e) == ActivePlayersEvent:
                 for playerInRound in e.players:
 
-                    ## Case 1: Player isn't in any team yet
-                    if playerInRound not in self.teamA and playerInRound not in self.teamB:
+                    ## Case 1: Player changed to observer (or sourcemod derp'ed)
+                    if playerInRound.team == NO_TEAM or playerInRound.team == OBSERVERS:
+                        playerInEventSeries = None
+                        if playerInRound in self.teamA:
+                            index = self.teamA.index(playerInRound)
+                            playerInEventSeries = self.teamA[index]
+                        elif playerInRound in self.teamA:
+                            index = self.teamB.index(playerInRound)
+                            playerInEventSeries = self.teamB[index]
+
+                        # update playtime (if nessesary) #
+                        if playerInEventSeries:
+                            playerInEventSeries.active = False
+                            playerInEventSeries.activeTime += e.timestamp - playerInEventSeries.timestamp
+
+                    ## Case 2: Player isn't in any team yet
+                    elif playerInRound not in self.teamA and playerInRound not in self.teamB:
                         playerInRound.active = True
                         if playerInRound.team == self.teamAId:
                             self.teamA += [playerInRound]
                         else:
                             self.teamB += [playerInRound]
-                    ## Case 2: Player is in the wrong team
+                    ## Case 3: Player is in the wrong team
                     elif playerInRound not in self._teamFromId(playerInRound.team):
+
                         index = self._teamFromId(playerInRound.team, inverted=True).index(playerInRound)
                         playerInEventSeries = self._teamFromId(playerInRound.team, inverted=True)[index]
                         
@@ -144,7 +160,7 @@ class EventSeries():
                             self.teamA += [playerInRound]
                         else:
                             self.teamB += [playerInRound]
-                    ## Case 3: Player is already in the correct team
+                    ## Case 4: Player is already in the correct team
                     else:
                         index = self._teamFromId(playerInRound.team).index(playerInRound)
                         playerInEventSeries = self._teamFromId(playerInRound.team)[index]
@@ -162,7 +178,6 @@ class EventSeries():
                         # update playtime #
                         playerInEventSeries.active = False
                         playerInEventSeries.activeTime += e.timestamp - playerInEventSeries.timestamp
-
             elif type(e) == WinnerInformationEvent:
                 self.winnerTeamId = int(e.winner)
                 self.winnerTeam   = self._teamFromId(self.winnerTeamId)
