@@ -22,7 +22,7 @@ def getPlayer():
     p = db.getPlayer(playerId)
     if not p:
         return ("Player not found", 404)
-    return "{}'s Rating: {}".format(p.name, int(p.rating.mu - p.rating.sigma))
+    return "{}'s Rating: {}".format(p.name, int(p.rating.mu - 2*p.rating.sigma))
 
 #### Open Leaderboard ###
 @app.route('/findplayer')
