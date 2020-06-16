@@ -11,7 +11,7 @@ if not len(sys.argv)>1:
 count = 31000
 i = 0
 start = dt.datetime.now()
-url = "http://127.0.0.1:5000/single-event?session=0000"
+url = "http://127.0.0.1:6200/single-event?session=0000"
 
 with open(sys.argv[1], "r") as f:
     for l in f:
@@ -27,3 +27,5 @@ with open(sys.argv[1], "r") as f:
         if "." in elapsed:
             elapsed = elapsed.split(".")[0]
         print("Round: {} ({}%) - elapsed: {}, estimated remaining: {}".format(i, percent, elapsed, estRem))
+
+requests.post(url, json={"etype":"round_end"})
