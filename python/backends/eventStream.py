@@ -170,6 +170,10 @@ class EventSeries():
             elif type(e) == MapInformationEvent:
                 self.map = e.map
 
+        ### check if there are players in both teams ###
+        if not self.winnerTeam or not self.loserTeam:
+            raise ValueError("One of the teams was empty")
+
         ### normalize teamchanges
         toBeRemovedFromLosers  = [] # cannot change iteable during iteration
         toBeRemovedFromWinners = []
