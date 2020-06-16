@@ -16,7 +16,7 @@ class Round:
 
     def __init__(self, winnerTeam, loserTeam, _map, duration, startTime, winnerSide):
 
-            if duration <= 0:
+            if duration <= dt.timedelta(0):
                 raise ValueError("Duration cannot be zero")
 
             self.winners     = winnerTeam
