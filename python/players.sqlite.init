@@ -1,0 +1,8 @@
+CREATE TABLE players(
+	id INTEGER,
+	name TEXT,
+	lastGame TEXT,
+	wins INTEGER,
+	mu INTEGER,
+	sigma INTEGER,
+	games INTEGER);

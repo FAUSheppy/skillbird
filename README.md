@@ -1,6 +1,15 @@
 # What is "Skillbird" ?
 Skillbird is a framework around the python-Trueskill library, which can parse files of versus games to calculate a rating, matchmaking suggestions for future games or create predictions for the outcome of a game with certain team compositions.
 
+# Usage
+
+    apt install sqlite3 python3 python3-pip
+    python3 -m pip install -r req.txt
+    cd python/
+    mkdir data/
+    sqlite -init players.sqlite.init
+    ./init -h
+
 # Web Interface
 The [Open-web-leaderboard](https://github.com/FAUSheppy/open-web-leaderboard) can be used for visualization. If you leave all settings at default, it should work out of the box.
 

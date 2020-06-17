@@ -1,4 +1,4 @@
 flask
-fuzzywuzzy
 trueskill
 sqlite3
+json
