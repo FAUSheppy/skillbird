@@ -24,30 +24,6 @@ def getPlayer():
         return ("Player not found", 404)
     return "{}'s Rating: {}".format(p.name, int(p.rating.mu - 2*p.rating.sigma))
 
-#### Open Leaderboard ###
-@app.route('/findplayer')
-def getFind():
-    playerName = flask.request.args.get("name")
-    p = db.findPlayerbyName(playerName)
-    return p.toJson()
-
-@app.route('/getmaxentries')
-def getMaxEntries():
-    return "{}".format(db.getTotalEntries())
-
-@app.route('/rankrange')
-def getRankRange():
-    try:
-        start = int(flask.request.args.get("start"))
-        end   = int(flask.request.args.get("end"))
-        if end - start <= 0 or end - start > 100:
-            raise ValueError()
-    except ValueError:
-        return invalidParameters(start, end)
-
-    players = db.getRankRange(start, end)
-    return ""
-
 ################# DataSubmission #######################
 @app.route('/submitt-round', methods=["POST"])
 def jsonRound():

@@ -63,37 +63,3 @@ def savePlayerToDatabase(player, incrementWins=0):
 def saveMultiplePlayersToDatabase(playerList, incrementWins=0):
     for p in playerList:
         savePlayerToDatabase(p, incrementWins)
-
-## open leaderboard functions ##
-def findPlayerByName(playerName):
-    conn = sqlite3.connect(DATABASE)
-    cursor = conn.cursor()
-    playerNamePrepared = "%{}%".format(playerName.replace("%", "%%"))
-    cursor.execute("SELECT * FROM players WHERE name == ?", (playerName,))
-    rows = cursor.fetchall()
-    playerRow = None
-    if len(rows) < 1:
-        cursor.execute("SELECT * FROM players WHERE name LIKE ?", (playerNamePrepared,))
-        rows = cursor.fetchall()
-        if len(rows) < 1:
-            return None
-        playerRow = rows[0]
-    else:
-        playerRow = rows[0]
-    
-    playerId, playerName, lastGame, wins, mu, sigma, games = playerRow
-    conn.close() 
-    return Players.PlayerInDatabase(playerId, playerName, 
-                                            trueskill.newRating(mu=mu, sigma=sigma), wins, games)
-
-def getTotalEntries(playerName):
-    conn = sqlite3.connect(DATABASE)
-    cursor = conn.cursor()
-    playerNamePrepared = "%{}%".format(playerName.replace("%", "%%"))
-    cursor.execute("select count(*) from players")
-    count =  cursor.fetchone()
-    conn.close()
-    return count
-
-def getRankRange(start, end):
-    pass
