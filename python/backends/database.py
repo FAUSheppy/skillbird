@@ -23,6 +23,17 @@ def getPlayer(playerId):
     finally:
         conn.close()
 
+def getPlayerRank(player):
+    '''Get a players current rank, seperate function because this query is relatively expensive'''
+
+    conn = sqlite3.connect("players.sqlite")
+    cursor = conn.cursor()
+    cursor.execute("SELECT COUNT(*) from players where (mu-2*sigma) > (?-2*?);", 
+                        (player.rating.mu, player.rating.sigma))
+    rank = cursor.fetchone()[0]
+    conn.close()
+    return rank
+
 def getOrCreatePlayer(player):
     playerInDb = getPlayer(player.id)
     if not playerInDb:

@@ -23,7 +23,7 @@ def getPlayer():
     p = db.getPlayer(playerId)
     if not p:
         return ("Player not found", 404)
-    return "{}'s Rating: {}".format(p.name, int(p.rating.mu - 2*p.rating.sigma))
+    return "{}'s Rating: {} (Rank {})".format(p.name, int(p.rating.mu - 2*p.rating.sigma), db.getPlayerRank(p))
 
 @app.route('/get-outcome-prediction', methods=["POST"])
 def getOutcomePrediction():
