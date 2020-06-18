@@ -28,8 +28,8 @@ def getPlayer():
 def getOutcomePrediction():
     '''Make a prediction based tww submitted teams of players'''
 
-    teamA = flask.request.json["teamA"]
-    teamB = flask.request.json["teamB"]
+    teamB = [ db.getPlayer(pJson["id"]) for pJson in flask.request.get("teamA") ]
+    teamB = [ db.getPlayer(pJson["id"]) for pJson in flask.request.get("teamB") ]
     cnameTeamA = flask.request.get("cnameTeamA")
     cnameTeamB = flask.request.get("cnameTeamB")
 
