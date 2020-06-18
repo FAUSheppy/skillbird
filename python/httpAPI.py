@@ -2,6 +2,7 @@
 
 import backends.database as db
 import backends.trueskillWrapper as ts
+import backends.entities.Players as players
 import backends.eventStream
 import Round
 import json
@@ -28,20 +29,32 @@ def getPlayer():
 def getOutcomePrediction():
     '''Make a prediction based tww submitted teams of players'''
 
-    teamB = [ db.getPlayer(pJson["id"]) for pJson in flask.request.get("teamA") ]
-    teamB = [ db.getPlayer(pJson["id"]) for pJson in flask.request.get("teamB") ]
-    cnameTeamA = flask.request.get("cnameTeamA")
-    cnameTeamB = flask.request.get("cnameTeamB")
+    teamA = filter(lambda x: x["team"] % 2 == 0, flask.request.json["players"])
+    teamB = filter(lambda x: x["team"] % 2 == 1, flask.request.json["players"])
 
-    quality = ts.quality(teamA, teamB)
-    prediction, confidence = ts.predict(teamA, teamB)
+
+    playersA = [ db.getOrCreatePlayer(players.playerInRoundFromJson(pJson)) for pJson in teamA ]
+    playersB = [ db.getOrCreatePlayer(players.playerInRoundFromJson(pJson)) for pJson in teamB ]
+
+    prediction, confidence = ts.predictOutcome(playersA, playersB)
+    quality = 1-abs(0.5-confidence)
+    balanceSuggestion, qualityOfSuggestion = ts.balance(playersA+playersB)
 
     retData = dict()
-    retData.update( { "cnameTeamA" : cnameTeamA } )
-    retData.update( { "cnameTeamB" : cnameTeamB } )
     retData.update( { "quality"    : quality    } )
     retData.update( { "prediction" : prediction } )
-    retData.update( { "confidence" : confidence } )
+    retData.update( { "prediction-confidence" : confidence } )
+
+    balanceSuggestionJson = { 
+                              "teamA" : [ json.loads(p.toJson()) for p in balanceSuggestion[0] ],
+                              "teamB" : [ json.loads(p.toJson()) for p in balanceSuggestion[1] ]
+                            }
+
+    retData.update( { "teamA-orig" : [ json.loads(p.toJson()) for p in playersA ] })
+    retData.update( { "teamB-orig" : [ json.loads(p.toJson()) for p in playersB ] })
+
+    retData.update( { "qualityOfSuggestion" : qualityOfSuggestion } )
+    retData.update( { "balanceSuggestion" : balanceSuggestionJson } )
 
     return flask.json.jsonify(retData)
 

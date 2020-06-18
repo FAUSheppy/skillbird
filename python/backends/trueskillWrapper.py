@@ -1,9 +1,9 @@
 #!/usr/bin/python3
-from trueskill import TrueSkill, Rating
-import scipy
+import trueskill
+import scipy.stats
 import math
 
-env = TrueSkill(draw_probability=0, mu=1500, sigma=833, tau=40, backend='mpmath')
+env = trueskill.TrueSkill(draw_probability=0, mu=1500, sigma=833, tau=40, backend='mpmath')
 env.make_as_global()
 
 #####################################################
@@ -71,9 +71,9 @@ def evaluateRound(r):
 
 def newRating(mu=None, sigma=None):
     if mu and sigma:
-        return Rating(mu=mu, sigma=sigma)
+        return trueskill.Rating(mu=mu, sigma=sigma)
     elif mu:
-        return Rating(mu=mu, sigma=env.sigma)
+        return trueskill.Rating(mu=mu, sigma=env.sigma)
     else:
         return env.create_rating()
 
@@ -86,13 +86,13 @@ def balance(players, buddies=None):
 def predictOutcome(teamA, teamB):
     '''Predict outcome of a game between team a and team b
         returns: (0|1, confidence)'''
-    
+   
     ratingsA = [ p.rating for p in teamA ]
     ratingsB = [ p.rating for p in teamB ]
     muTeamA  = sum([ r.mu for r in ratingsA])
     muTeamB  = sum([ r.mu for r in ratingsB])
-    sigmaTeamA = math.sqrt(sum([ r.sigma**2 for r in ratingsA]))
-    sigmaTeamB = math.sqrt(sum([ r.sigma**2 for r in ratingsB]))
+    sigmaTeamA = sum([ r.sigma for r in ratingsA])
+    sigmaTeamB = sum([ r.sigma for r in ratingsB])
 
     # probabilty that a random point from normDistTeamA is greater
     # than a random point from  normDistB is normA - normB and then the
@@ -103,12 +103,19 @@ def predictOutcome(teamA, teamB):
         return (0, prob)
     elif prob < 0.5:
         return (1, 1-prob)
+    else:
+        raise ValueError("Probability was NAN, team rating must have been malformed.")
 
+def balance(players, buddies=None):
+    sortedByRating = sorted(players, key=lambda p: env.expose(p.rating))
+    teamA = []
+    teamB = []
+    for i in range(0, len(players)):
+        if i % 2 == 0:
+            teamA += [sortedByRating[i]]
+        else:
+            teamB += [sortedByRating[i]]
 
-def quality(teamA, teamB):
-    '''Take two teams of players and calculate a game quality'''
-
-    ratingsA = [ p.rating for p in teamA ]
-    ratingsB = [ p.rating for p in teamB ]
-
-    return trueskill.quality(ratingsA, ratingsB)
+    prediction, confidence = predictOutcome(teamA, teamB)
+    quality = 1-abs(0.5 - confidence)
+    return ((teamA, teamB), quality)

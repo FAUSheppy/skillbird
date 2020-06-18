@@ -37,6 +37,9 @@ class PlayerInRound(Player):
         def __str__(self):
             return "PlayerInRound: N: {} ID: {} Team: {}".format(self.name, self.id, self.team)
 
+def playerInRoundFromJson(jsonDict):
+        return PlayerInRound(jsonDict["id"], jsonDict["name"], jsonDict["team"], timestamp=dt.datetime.now())
+
 class PlayerInDatabase(Player):
 
         def __init__(self, playerId, name, rating, wins, games):
