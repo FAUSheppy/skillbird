@@ -24,7 +24,7 @@ def getPlayer():
         return ("Player not found", 404)
     return "{}'s Rating: {}".format(p.name, int(p.rating.mu - 2*p.rating.sigma))
 
-@app.route('/get-outcome-prediction'. methods=["POST"])
+@app.route('/get-outcome-prediction', methods=["POST"])
 def getOutcomePrediction():
     '''Make a prediction based tww submitted teams of players'''
 
