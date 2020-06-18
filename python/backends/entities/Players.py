@@ -59,7 +59,7 @@ class PlayerInDatabase(Player):
             retDict = { "name" : self.name, 
                             "id" : self.id, 
                             "rating-mu" : self.rating.mu,
-                            "rating-sigma" : self.rating.mu,
+                            "rating-sigma" : self.rating.sigma,
                             "games" : self.games,
                             "wins" : self.wins,
                             "last-game" : self.lastUpdate.isoformat()}
