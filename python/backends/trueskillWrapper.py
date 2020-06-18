@@ -1,5 +1,7 @@
 #!/usr/bin/python3
 from trueskill import TrueSkill, Rating
+import scipy
+import math
 
 env = TrueSkill(draw_probability=0, mu=1500, sigma=833, tau=40, backend='mpmath')
 env.make_as_global()
@@ -64,7 +66,7 @@ def evaluateRound(r):
 #            print(p)
 
 #####################################################
-################### LOCK/GETTER ####################
+##################### GETTER ########################
 #####################################################
 
 def newRating(mu=None, sigma=None):
@@ -81,5 +83,32 @@ def getEnviroment():
 def balance(players, buddies=None):
         raise NotImplementedError()
 
-def get_player_rating(sid, name="NOTFOUND"):
-        raise NotImplementedError()
+def predictOutcome(teamA, teamB):
+    '''Predict outcome of a game between team a and team b
+        returns: (0|1, confidence)'''
+    
+    ratingsA = [ p.rating for p in teamA ]
+    ratingsB = [ p.rating for p in teamB ]
+    muTeamA  = sum([ r.mu for r in ratingsA])
+    muTeamB  = sum([ r.mu for r in ratingsB])
+    sigmaTeamA = math.sqrt(sum([ r.sigma**2 for r in ratingsA]))
+    sigmaTeamB = math.sqrt(sum([ r.sigma**2 for r in ratingsB]))
+
+    # probabilty that a random point from normDistTeamA is greater
+    # than a random point from  normDistB is normA - normB and then the
+    # "1 - Cumulative Distribution Function" (cdf) aka the "Survival Function" (sf)
+    # of the resulting distribution being greater than zero
+    prob = scipy.stats.norm(loc=muTeamB-muTeamA, scale=math.sqrt(sigmaTeamB**2-sigmaTeamA**2)).sf(0)
+    if prob >= 0.5:
+        return (0, prob)
+    elif prob < 0.5:
+        return (1, 1-prob)
+
+
+def quality(teamA, teamB):
+    '''Take two teams of players and calculate a game quality'''
+
+    ratingsA = [ p.rating for p in teamA ]
+    ratingsB = [ p.rating for p in teamB ]
+
+    return trueskill.quality(ratingsA, ratingsB)

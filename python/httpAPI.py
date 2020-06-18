@@ -24,6 +24,28 @@ def getPlayer():
         return ("Player not found", 404)
     return "{}'s Rating: {}".format(p.name, int(p.rating.mu - 2*p.rating.sigma))
 
+@app.route('/get-outcome-prediction'. methods=["POST"])
+def getOutcomePrediction():
+    '''Make a prediction based tww submitted teams of players'''
+
+    teamA = flask.request.json["teamA"]
+    teamB = flask.request.json["teamB"]
+    cnameTeamA = flask.request.get("cnameTeamA")
+    cnameTeamB = flask.request.get("cnameTeamB")
+
+    quality = ts.quality(teamA, teamB)
+    prediction, confidence = ts.predict(teamA, teamB)
+
+    retData = dict()
+    retData.update( { "cnameTeamA" : cnameTeamA } )
+    retData.update( { "cnameTeamB" : cnameTeamB } )
+    retData.update( { "quality"    : quality    } )
+    retData.update( { "prediction" : prediction } )
+    retData.update( { "confidence" : confidence } )
+
+    return flask.json.jsonify(retData)
+
+
 ################# DataSubmission #######################
 @app.route('/submitt-round', methods=["POST"])
 def jsonRound():

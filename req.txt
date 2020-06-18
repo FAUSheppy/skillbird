@@ -2,3 +2,4 @@ flask
 trueskill
 sqlite3
 json
+scipy
