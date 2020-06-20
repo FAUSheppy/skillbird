@@ -10,11 +10,19 @@ if not len(sys.argv)>1:
 
 count = 31000
 i = 0
+skip = 0
+if len(sys.argv)>2:
+    skip = int(sys.argv[2])
+
 start = dt.datetime.now()
 url = "http://127.0.0.1:5000/submitt-round"
 
 with open(sys.argv[1], "r") as f:
     for l in f:
+        if skip > 0:
+            skip -= 1;
+            i+=1
+            continue
         requests.post(url, json=json.loads(l))
         cur = dt.datetime.now()
         i+=1
