@@ -98,7 +98,7 @@ def predictOutcome(teamA, teamB):
     # than a random point from  normDistB is normA - normB and then the
     # "1 - Cumulative Distribution Function" (cdf) aka the "Survival Function" (sf)
     # of the resulting distribution being greater than zero
-    prob = scipy.stats.norm(loc=muTeamB-muTeamA, scale=sigmaTeamB+sigmaTeamA).sf(0)
+    prob = scipy.stats.norm(loc=muTeamA-muTeamB, scale=sigmaTeamB+sigmaTeamA).sf(0)
     if prob >= 0.5:
         return (0, prob)
     elif prob < 0.5:
