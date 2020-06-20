@@ -3,6 +3,7 @@ import datetime as dt
 import dateutil.parser
 import backends.entities.Players as Players
 import backends.database         as db
+import backends.trueskillWrapper as ts
 
 ## A comment on why the login-offset is nessesary ##
 ## - losing teams tend to have players leaving and joining more rapidly
@@ -31,7 +32,7 @@ class Round:
                 playerInDB = db.getOrCreatePlayer(p)
                 p.rating   = playerInDB.rating
 
-
+            self.prediction, self.confidence = ts.predictOutcome(self.winners, self.losers)
 
     def normalized_playtimes(self):
         '''returns a dict-Object with {key=(teamid,player):value=player_time_played/total_time_of_round}'''

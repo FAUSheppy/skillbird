@@ -1,11 +1,27 @@
 import sqlite3
+import json
 import backends.entities.Players as Players
 import backends.trueskillWrapper as trueskill
 
 # setup
 # create TABLE players (id TEXT PRIMARY KEY, name TEXT, lastgame TEXT, wins INTEGER, mu REAL, sigma REAL, game INTEGER);
+# create TABLE rounds (timestamp TEXT PRIMARY KEY, winners BLOB, losers BLOB, winnerSide INTEGER, map TEXT, duration INTEGER, prediction REAL, confidence REAL)
 
 DATABASE = "players.sqlite"
+DATABASE_ROUNDS = "rounds.sqlite"
+
+def saveRound(r):
+    conn = sqlite3.connect(DATABASE_ROUNDS)
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO rounds VALUES (?,?,?,?,?,?,?,?)", (r.start.timestamp(),
+                                    json.dumps([ p.toJson() for p in r.winners ]),
+                                    json.dumps([ p.toJson() for p in r.losers ]),
+                                    r.winnerSide, r.map, r.duration.total_seconds(), 
+                                    r.prediction, r.confidence))
+
+    conn.commit()
+    conn.close()
+
 
 def getPlayer(playerId):
     conn = sqlite3.connect("players.sqlite")

@@ -34,6 +34,15 @@ class PlayerInRound(Player):
             self.is_fake = is_fake
             self.timestamp = timestamp
 
+        def toJson(self):
+            retDict = { "name" : self.name, 
+                            "id" : self.id, 
+                            "active_time" : self.activeTime.total_seconds(),
+                            "timestamp" : self.timestamp.timestamp(),
+                            "team" : self.team 
+                        }
+            return retDict
+
         def __str__(self):
             return "PlayerInRound: N: {} ID: {} Team: {}".format(self.name, self.id, self.team)
 

@@ -122,6 +122,8 @@ def eventBlob():
 def evaluateRound(matchRound):
     '''Run a match round throught the backand (includeing persisting it'''
 
+    db.saveRound(matchRound)
+
     # winners/losers are both dictionaries in the form of { PlayerInDatabase : newRating } #
     winnersRated, losersRated = ts.evaluateRound(matchRound)
 
