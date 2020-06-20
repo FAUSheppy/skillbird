@@ -1,5 +1,8 @@
 cache
-*.sqlite
+*.sqlite*
+*.dump
+debug.py
+*.json
 *.sqlite.clean
 *.txt
 *.log
