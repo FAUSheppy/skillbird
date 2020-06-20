@@ -1,0 +1,10 @@
+create TABLE rounds (
+    timestamp TEXT PRIMARY KEY,
+    winners BLOB,
+    losers BLOB,
+    winnerSide INTEGER,
+    map TEXT,
+    duration REAL,
+    prediction INTEGER,
+    confidence REAL
+);

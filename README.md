@@ -7,7 +7,8 @@ Skillbird is a framework around the python-Trueskill library, which can parse fi
     python3 -m pip install -r req.txt
     cd python/
     mkdir data/
-    sqlite -init players.sqlite.init
+    sqlite -init players.sqlite.init players.sqlite
+    sqlite -init rounds.sqlite.init rounds.sqlite
     ./init -h
 
 # Web Interface
