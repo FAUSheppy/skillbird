@@ -134,12 +134,13 @@ def fromJson(jsonDict):
 
     for p in jsonDict["winners"]:
         pObj = Players.PlayerInRound(p["playerId"], p["playerName"], winnerTeam, timestamp)
-        pObj.activeTime = int(p["activeTime"])
+        pObj.activeTime = dt.timedelta(int(p["activeTime"]))
         winnersList += [pObj]
 
     for p in jsonDict["losers"]:
         pObj = Players.PlayerInRound(p["playerId"], p["playerName"], loserTeam, timestamp)
-        pObj.activeTime = int(p["activeTime"])
+        pObj.activeTime = dt.timedelta(int(p["activeTime"]))
         losersList += [pObj]
 
-    return Round(winnersList, losersList, jsonDict["duration"], jsonDict["map"], timestamp, winnerTeam)
+    duration = dt.timedelta(seconds=int(jsonDict["duration"]))
+    return Round(winnersList, losersList, jsonDict["map"], duration, timestamp, winnerTeam)
