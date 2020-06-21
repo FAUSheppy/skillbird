@@ -41,6 +41,7 @@ def getOutcomePrediction():
     balanceSuggestion, qualityOfSuggestion = ts.balance(playersA+playersB)
 
     retData = dict()
+    retData.update( { "action"     : "balance"  } )
     retData.update( { "quality"    : quality    } )
     retData.update( { "prediction" : prediction } )
     retData.update( { "prediction-confidence" : confidence } )
