@@ -21,7 +21,7 @@ def run(port, parser):
 def health():
     try:
         count, avgPred = db.check()
-        return ("Rounds: {}, AvgPrediction (lower than 0.5 is good): {}".format(count, avgPred))
+        return ("Rounds: {}, AvgPrediction (lower than 0.5 is good): {}".format(count, avgPred), 500)
     except AssertionError as e:
         return ("{}".format(e), 200)
 
