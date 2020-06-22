@@ -1,5 +1,6 @@
 import sqlite3
 import json
+import datetime as dt
 import backends.entities.Players as Players
 import backends.trueskillWrapper as trueskill
 
@@ -9,6 +10,30 @@ import backends.trueskillWrapper as trueskill
 
 DATABASE = "players.sqlite"
 DATABASE_ROUNDS = "rounds.sqlite"
+
+def check():
+    conn = sqlite3.connect(DATABASE)
+    conn.close()
+    conn = sqlite3.connect(DATABASE_ROUNDS)
+    cursor = conn.cursor()
+    backlog = dt.datetime.now() - dt.timedelta(days=7)
+    query = "SELECT avg(prediction) FROM rounds WHERE timestamp > ? AND confidence > 0.6 \
+                    ORDER BY timestamp DESC;"
+    cursor.execute(query, (backlog.timestamp(),))
+    avgPred = cursor.fetchone()[0]
+    query = "SELECT count(*) FROM rounds WHERE timestamp > ? AND confidence > 0.6 \
+                    ORDER BY timestamp DESC;"
+    cursor.execute(query, (backlog.timestamp(),))
+    count = cursor.fetchone()[0]
+    conn.close()
+
+    if count < 10:
+        raise AssertionError("Game count last 7 days low ({})".format(count))
+    elif avgPred > 0.5:
+        raise AssertionError("Average Prediction very bad ({})".format(avgPred))
+    else:
+        return (count, avgPred)
+
 
 def saveRound(r):
     conn = sqlite3.connect(DATABASE_ROUNDS)

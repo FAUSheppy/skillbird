@@ -17,6 +17,14 @@ def run(port, parser):
     app.run(port=port)
 
 ## SERVER QUERIES ###
+@app.route('/health')
+def health():
+    try:
+        count, avgPred = db.check()
+        return ("Rounds: {}, AvgPrediction (lower than 0.5 is good): {}".format(count, avgPred))
+    except AssertionError as e:
+        return ("{}".format(e), 200)
+
 @app.route('/get-player-rating-msg')
 def getPlayer():
     playerId = flask.request.args.get("id")
