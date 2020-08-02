@@ -21,9 +21,9 @@ def run(port, parser):
 def health():
     try:
         count, avgPred = db.check()
-        return ("Rounds: {}, AvgPrediction (lower than 0.5 is good): {}".format(count, avgPred), 200)
+        return ("Rounds: {}, PredQuality: (lower than 0.5 is good): {}".format(count, avgPred), 200)
     except AssertionError as e:
-        return ("{}".format(e), 200)
+        return ("{}".format(e), 500)
 
 @app.route('/get-player-rating-msg')
 def getPlayer():
