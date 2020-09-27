@@ -7,6 +7,7 @@ import backends.trueskillWrapper as trueskill
 # setup
 # create TABLE players (id TEXT PRIMARY KEY, name TEXT, lastgame TEXT, wins INTEGER, mu REAL, sigma REAL, game INTEGER);
 # create TABLE rounds (timestamp TEXT PRIMARY KEY, winners BLOB, losers BLOB, winnerSide INTEGER, map TEXT, duration INTEGER, prediction REAL, confidence REAL)
+# create TABLE playerHistoricalData (id TEXT, timestamp TEXT, mu REAL, sima REAL)
 
 DATABASE = "players.sqlite"
 DATABASE_ROUNDS = "rounds.sqlite"
@@ -33,6 +34,20 @@ def check():
         raise AssertionError("Average Prediction very bad ({})".format(avgPred))
     else:
         return (count, avgPred)
+
+def logHistoricalData(player, timestamp):
+    if not timestamp:
+        return
+    conn = sqlite3.connect(DATABASE)
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO playerHistoricalData VALUES (?,?,?,?)", (
+                            player.id,
+                            timestamp.timestamp(),
+                            player.rating.mu,
+                            player.rating.sigma))
+    conn.commit()
+    conn.close()
+
 
 
 def saveRound(r):
@@ -86,7 +101,7 @@ def getOrCreatePlayer(player):
 def getMultiplePlayers(playerIdList):
     return [ getPlayer(p) for p in playerIdList ]
 
-def savePlayerToDatabase(player, incrementWins=0):
+def savePlayerToDatabase(player, incrementWins=0, timestamp=None):
     conn = sqlite3.connect(DATABASE)
     cursor = conn.cursor()
 
@@ -110,8 +125,27 @@ def savePlayerToDatabase(player, incrementWins=0):
                             player.rating.mu, player.rating.sigma, 0))
     conn.commit()
     conn.close()
-    return getPlayer(player.id)
+    playerDone = getPlayer(player.id)
 
-def saveMultiplePlayersToDatabase(playerList, incrementWins=0):
+    logHistoricalData(playerDone, timestamp)
+    return playerDone
+
+def saveMultiplePlayersToDatabase(playerList, incrementWins=0, timestamp=None):
     for p in playerList:
-        savePlayerToDatabase(p, incrementWins)
+        savePlayerToDatabase(p, incrementWins, timestamp=timestamp)
+
+def getBuddyGraphs(players):
+    conn = sqlite3.connect(DATABASE)
+    cursor = conn.cursor()
+
+    graphs = dict()
+
+    for p in players:
+        rows = []# cursor.execute("SELECT buddy from buddies where playerId = ?;", (p.id,))
+        buddies = [ r[0] for r in rows ]
+        for b in buddies:
+            if b in players:
+                pass
+
+    conn.close()
+

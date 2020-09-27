@@ -106,10 +106,13 @@ def predictOutcome(teamA, teamB):
     else:
         raise ValueError("Probability was NAN, team rating must have been malformed.")
 
-def balance(players, buddies=None):
+def balance(players):
     sortedByRating = sorted(players, key=lambda p: env.expose(p.rating))
     teamA = []
     teamB = []
+
+    graphs = db.getBuddyGraphs(players)
+
     for i in range(0, len(players)):
         if i % 2 == 0:
             teamA += [sortedByRating[i]]

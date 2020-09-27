@@ -6,3 +6,5 @@ CREATE TABLE players(
 	mu INTEGER,
 	sigma INTEGER,
 	games INTEGER);
+
+create TABLE playerHistoricalData (id TEXT, timestamp TEXT, mu REAL, sima REAL);

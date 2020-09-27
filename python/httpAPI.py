@@ -141,5 +141,6 @@ def evaluateRound(matchRound):
     for playerInDatabase in losersRated.keys():
         playerInDatabase.rating = losersRated[playerInDatabase]
 
-    db.saveMultiplePlayersToDatabase(winnersRated.keys(), incrementWins=1)
-    db.saveMultiplePlayersToDatabase(losersRated.keys())
+    db.saveMultiplePlayersToDatabase(winnersRated.keys(), incrementWins=1, 
+                                        timestamp=matchRound.start)
+    db.saveMultiplePlayersToDatabase(losersRated.keys(), timestamp=matchRound.start)
