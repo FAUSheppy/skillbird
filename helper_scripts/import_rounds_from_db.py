@@ -51,7 +51,7 @@ if __name__ == "__main__":
         cur = datetime.datetime.now()
         percent = int(i/count*100);
         elapsed = str(cur-start).split(".")[0]
-        estRem  = str((cur-start)/i*count).split(".")[0]
+        estTot  = str((cur-start)/i*count).split(".")[0]
         i += 1
-        print("Round: {} ({}%) - elapsed: {}, estimated remaining: {}\r".format(
-                i, percent, elapsed, estRem), end="")
+        print("Round: {} ({}%) - elapsed: {}, estimated total: {}\r".format(
+                i, percent, elapsed, estTot), end="")
