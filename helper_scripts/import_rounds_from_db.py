@@ -18,7 +18,7 @@ if __name__ == "__main__":
     count = cursor.fetchone()[0]
     i = 1
 
-    cursor.execute("select * from rounds")
+    cursor.execute("select * from rounds order by timestamp ASC")
     for row in cursor:
 
         # load from db
