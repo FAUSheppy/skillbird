@@ -29,7 +29,7 @@ class Round:
 
             ### Sync players from Databse ###
             for p in self.winners + self.losers:
-                playerInDB = db.getOrCreatePlayer(p)
+                playerInDB = db.getOrCreatePlayer(p, startTime)
                 p.rating   = playerInDB.rating
 
             self.prediction, self.confidence = ts.predictOutcome(self.winners, self.losers)

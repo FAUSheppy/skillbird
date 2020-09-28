@@ -90,10 +90,10 @@ def getPlayerRank(player):
     conn.close()
     return rank
 
-def getOrCreatePlayer(player):
+def getOrCreatePlayer(player, timestamp=None):
     playerInDb = getPlayer(player.id)
     if not playerInDb:
-        return savePlayerToDatabase(player)
+        return savePlayerToDatabase(player, timestamp=timestamp)
     else:
         return playerInDb
 
@@ -117,11 +117,13 @@ def savePlayerToDatabase(player, incrementWins=0, timestamp=None):
                                            sigma = ?,
                                            games = ? 
                                            WHERE id = ?''', 
-                        (player.id, player.name, None, playerFromDatabase.wins + incrementWins, 
-                            player.rating.mu, player.rating.sigma, playerFromDatabase.games + 1, player.id))
+                        (player.id, player.name, timestamp.timestamp(),
+                            playerFromDatabase.wins + incrementWins, 
+                            player.rating.mu, player.rating.sigma, playerFromDatabase.games + 1,
+                            player.id))
     else:
         cursor.execute("INSERT INTO players VALUES (?,?,?,?,?,?,?)", 
-                        (player.id, player.name, None, 0, 
+                        (player.id, player.name, timestamp.timestamp(), 0, 
                             player.rating.mu, player.rating.sigma, 0))
     conn.commit()
     conn.close()
