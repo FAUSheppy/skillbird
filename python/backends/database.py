@@ -84,7 +84,8 @@ def getPlayerRank(player):
 
     conn = sqlite3.connect("players.sqlite")
     cursor = conn.cursor()
-    cursor.execute("SELECT COUNT(*) from players where (mu-2*sigma) > (?-2*?);", 
+    cursor.execute('''SELECT COUNT(*) from players where (mu-2*sigma) > (?-2*?)
+                        and not lastgame is null and games >= 10;''', 
                         (player.rating.mu, player.rating.sigma))
     rank = cursor.fetchone()[0]
     conn.close()
