@@ -19,6 +19,8 @@ class Round:
 
             if duration <= dt.timedelta(0):
                 raise ValueError("Duration cannot be zero")
+            if duration <= dt.timedelta(seconds=120):
+                raise ValueError("Games was too short")
 
             self.winners     = winnerTeam
             self.losers      = loserTeam
