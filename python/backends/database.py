@@ -18,19 +18,20 @@ def check():
     conn = sqlite3.connect(DATABASE_ROUNDS)
     cursor = conn.cursor()
     backlog = dt.datetime.now() - dt.timedelta(days=7)
-    query = "SELECT avg(prediction) FROM rounds WHERE timestamp > ? AND confidence > 0.6 \
-                    ORDER BY timestamp DESC;"
+    query = '''SELECT avg(prediction) FROM rounds WHERE timestamp > ? AND confidence > 0.5
+                    AND duration > 120
+                    ORDER BY timestamp DESC;'''
     cursor.execute(query, (backlog.timestamp(),))
     avgPred = cursor.fetchone()[0]
-    query = "SELECT count(*) FROM rounds WHERE timestamp > ? AND confidence > 0.6 \
-                    ORDER BY timestamp DESC;"
+    query = '''SELECT count(*) FROM rounds WHERE timestamp > ? AND duration > 120
+                    ORDER BY timestamp DESC;'''
     cursor.execute(query, (backlog.timestamp(),))
     count = cursor.fetchone()[0]
     conn.close()
 
     if count < 10:
         raise AssertionError("Game count last 7 days low ({})".format(count))
-    elif avgPred > 0.5:
+    elif avgPred > 0.6:
         raise AssertionError("Average Prediction very bad ({})".format(avgPred))
     else:
         return (count, avgPred)
@@ -89,7 +90,9 @@ def getPlayerRank(player):
                         (player.rating.mu, player.rating.sigma))
     rank = cursor.fetchone()[0]
     conn.close()
-    return rank
+
+    # fix zero-index (rank 0 -> rank 1) #
+    return rank + 1
 
 def getOrCreatePlayer(player, timestamp=None):
     playerInDb = getPlayer(player.id)
