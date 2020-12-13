@@ -16,6 +16,9 @@ def evaluateRound(r):
     if r.pt_difference() >= 2.1 or r.pt_difference() == 0:
         raise ValueError("Teams too imbalanced: {} (zero=inifinity)".format(r.pt_difference()))
 
+    if r.confidence > 0.95:
+        raise ValueError("Confidence is too high, skipping round.")
+
     weights = r.normalized_playtimes()
     
     # trueskill need groups = [ { key : rating, ... } , { key : rating, ... } ]
