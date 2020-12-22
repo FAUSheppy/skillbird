@@ -8,3 +8,4 @@ CREATE TABLE players(
 	games INTEGER);
 
 create TABLE playerHistoricalData (id TEXT, timestamp TEXT, mu REAL, sima REAL);
+create TABLE live (id text, time INTEGER, duration INTEGER, players TEXT);

@@ -102,6 +102,10 @@ def singleEvent():
             print("Removed orphaned session file: {}".format(fullPath), file=sys.stderr)
             os.remove(fullPath)
 
+    # update live stats #
+    if jsonDict["etype"] == "active_players":
+        db.logLiveState(jsonDict, session)
+
     if jsonDict["etype"] == ROUND_END_IDENT:
         events = []
         with open(fullPath, "r") as f:

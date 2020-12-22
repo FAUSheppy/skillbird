@@ -36,6 +36,41 @@ def check():
     else:
         return (count, avgPred)
 
+def logLiveState(jsonDict, trackingId):
+    '''Log live state for leaderboard'''
+
+    conn = sqlite3.connect(DATABASE)
+    cursor = conn.cursor()
+    cursor.execute("SELECT time FROM live WHERE id = ?", (trackingId,))
+    row = cursor.fetchone()
+
+    if row:
+        startTime = dt.datetime.fromtimestamp(int(row[0]))
+        duration = dt.datetime.now() - startTime
+
+        # check age of entry #
+        if duration < dt.timedelta(minutes=60):
+            cursor.execute("UPDATE live SET duration = ?, players = ? WHERE id = ?", (
+                                int(duration.total_seconds()),
+                                json.dumps(jsonDict["players"]),
+                                trackingId))
+            conn.commit()
+            conn.close()
+            return
+        else:
+            cursor.execute("DELETE FROM live WHERE id = ?", (trackingId,))
+
+    startTime = dt.datetime.now()
+    duration = dt.timedelta(0)
+    cursor.execute("INSERT INTO live VALUES (?,?,?,?)", (
+                        trackingId,
+                        int(startTime.timestamp()),
+                        int(duration.total_seconds()),
+                        json.dumps(jsonDict["players"])))
+
+    conn.commit()
+    conn.close()
+
 def logHistoricalData(player, timestamp):
     if not timestamp:
         return
