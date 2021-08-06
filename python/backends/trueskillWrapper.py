@@ -3,7 +3,7 @@ import trueskill
 import scipy.stats
 import math
 
-env = trueskill.TrueSkill(draw_probability=0, mu=1500, sigma=833, tau=40, backend='mpmath')
+env = trueskill.TrueSkill(draw_probability=0, mu=1500, sigma=833, tau=5, backend='mpmath')
 env.make_as_global()
 
 #####################################################
