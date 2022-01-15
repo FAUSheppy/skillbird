@@ -14,9 +14,6 @@ Skillbird is a framework around the python-Trueskill library, which can parse fi
 # Web Interface
 The [Open-web-leaderboard](https://github.com/FAUSheppy/open-web-leaderboard) can be used for visualization. If you leave all settings at default, it should work out of the box.
 
-![open-web-leaderboard](https://media.atlantishq.de/leaderboard-github-picture.png)
-
-
 # Data Transmission
 ## /event-blob
 Your server may collect certain events during a match of two teams and columinatively report them to the server, which will then evalute those event into a single Round. The events must be submitted as a *JSON-list* with *Content-Type application/json* in a field called *"events"*. Event must be dictionary-like *JSON*-objects as described below.
