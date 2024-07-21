@@ -1,0 +1,32 @@
+name: Container Build for skillbird
+
+on:
+  push:
+    branches:
+      - "master"
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    environment:
+        name: prod
+    steps:
+      - uses: actions/checkout@v3
+      -
+        name: Checkout
+        uses: actions/checkout@v3
+      -
+        name: Login to Docker Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ secrets.REGISTRY }}
+          username: ${{ secrets.REGISTRY_USER }}
+          password: ${{ secrets.REGISTRY_PASS }}
+      -
+        name: skillbird
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          platforms: linux/amd64
+          push: true
+          tags: "${{ secrets.REGISTRY }}/atlantishq/skillbird:latest"

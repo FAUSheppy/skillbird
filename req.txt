@@ -2,6 +2,5 @@ flask
 trueskill
 sqlalchemy
 mpmath
-pythob-dateutil
+python-dateutil
 scipy
-python-valve
